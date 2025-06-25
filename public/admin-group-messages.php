@@ -58,7 +58,7 @@ $messages = $messages_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Group Messages - <?= htmlspecialchars($group['group_name']) ?></h2>
             <div>
-                <a href="../php/admin-download-group-chats.php?id=<?= $group['group_id'] ?>&format=csv" class="btn btn-sm btn-success">
+                <!-- <a href="../php/admin-download-group-chats.php?id=<?= $group['group_id'] ?>&format=csv" class="btn btn-sm btn-success">
                     <i class="fas fa-download"></i> CSV
                 </a>
                 <a href="../php/admin-download-group-chats.php?id=<?= $group['group_id'] ?>&format=txt" class="btn btn-sm btn-info">
@@ -66,7 +66,7 @@ $messages = $messages_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 </a>
                 <a href="../php/admin-download-group-chats.php?id=<?= $group['group_id'] ?>&format=pdf" class="btn btn-sm btn-danger">
                     <i class="fas fa-download"></i> PDF
-                </a>
+                </a> -->
                 <a href="admin-groups.php" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Groups
                 </a>

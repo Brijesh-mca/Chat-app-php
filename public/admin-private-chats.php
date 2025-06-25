@@ -82,7 +82,7 @@ if ($result) {
                                             <i class="fas fa-eye"></i> View
                                         </a>
                                         <div class="btn-group">
-                                            <a href="../php/admin-download-private-chat.php?user_id1=<?= $conversation['outgoing_msg_id'] ?>&user_id2=<?= $conversation['incoming_msg_id'] ?>&format=txt" 
+                                            <!-- <a href="../php/admin-download-private-chat.php?user_id1=<?= $conversation['outgoing_msg_id'] ?>&user_id2=<?= $conversation['incoming_msg_id'] ?>&format=txt" 
                                                class="btn btn-sm btn-info" title="Download as TXT">
                                                 <i class="fas fa-file-alt"></i>
                                             </a>
@@ -90,7 +90,7 @@ if ($result) {
                                                class="btn btn-sm btn-danger" title="Download as PDF">
                                                 <i class="fas fa-file-pdf"></i>
                                             </a>
-                                        </div>
+                                        </div> -->
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
