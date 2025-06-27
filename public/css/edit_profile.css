@@ -15,6 +15,16 @@
     box-sizing: border-box;
 }
 
+.readonly-field {
+    font-weight: 500;
+    color: #444;
+    display: inline-block !important;
+    background: #f9f9f9;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+
 .layout-header {
     margin-top: 2rem;
     display: flex;

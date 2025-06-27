@@ -43,7 +43,6 @@ $result = mysqli_stmt_get_result($stmt);
             </div>
             <div class="request-actions">
               <button class="btn-approve" data-action="accept"><i class="fas fa-check"></i> Accept</button>
-              <button class="btn-reject" data-action="reject"><i class="fas fa-times"></i> Reject</button>
             </div>
           </div>
         <?php endwhile; ?>

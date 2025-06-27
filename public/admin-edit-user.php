@@ -115,6 +115,13 @@ $error = isset($_GET['error']) ? $_GET['error'] : null;
                                     </div>
                                 <?php endif; ?>
                             </div>
+                            <div class="mb-3">
+                                <label for="is_blocked" class="form-label">User Status</label>
+                                <select class="form-select" id="is_blocked" name="is_blocked">
+                                    <option value="0" <?= $user['is_blocked'] == 0 ? 'selected' : '' ?>>Active</option>
+                                    <option value="1" <?= $user['is_blocked'] == 1 ? 'selected' : '' ?>>Blocked</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="mt-4">

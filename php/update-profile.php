@@ -10,21 +10,12 @@ if (!isset($_SESSION['unique_id'])) {
 $id = $_SESSION['unique_id'];
 $fname = mysqli_real_escape_string($conn, $_POST['fname']);
 $lname = mysqli_real_escape_string($conn, $_POST['lname']);
-$email = mysqli_real_escape_string($conn, $_POST['email']);
-$designation = mysqli_real_escape_string($conn, $_POST['designation']);
 $location = mysqli_real_escape_string($conn, $_POST['location']);
-$employee_code = mysqli_real_escape_string($conn, $_POST['employee_code']);
 $password = !empty($_POST['password']) ? mysqli_real_escape_string($conn, $_POST['password']) : null;
 
 // Validate required fields
-if (empty($fname) || empty($lname) || empty($email)) {
-    echo "First name, Last name, and Email are required.";
-    exit;
-}
-
-// Email format validation
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo "Invalid email format.";
+if (empty($fname) || empty($lname)) {
+    echo "First name and Last name are required.";
     exit;
 }
 
@@ -61,10 +52,7 @@ if (!empty($password)) {
 $sql = "UPDATE users 
         SET fname = '{$fname}', 
             lname = '{$lname}', 
-            email = '{$email}', 
-            designation = '{$designation}', 
-            location = '{$location}', 
-            employee_code = '{$employee_code}' 
+            location = '{$location}' 
             {$update_img} 
             {$update_password}
         WHERE unique_id = '{$id}'";
@@ -75,4 +63,3 @@ if (mysqli_query($conn, $sql)) {
     echo "Update failed: " . mysqli_error($conn);
 }
 ?>
-

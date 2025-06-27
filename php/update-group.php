@@ -1,69 +1,86 @@
 <?php
 session_start();
-if (isset($_SESSION['unique_id'])) {
-    include_once "config.php";
+require_once "config.php";
 
-    $group_id = mysqli_real_escape_string($conn, $_POST['group_id']);
+if (isset($_POST['update_group'])) {
+    $group_id = intval($_POST['group_id']);
+    $user_id = intval($_SESSION['unique_id']);
+
+    // ✅ Blocked user check
+    $block_check = mysqli_query($conn, "SELECT is_blocked FROM users WHERE unique_id = $user_id");
+    if ($block_check && mysqli_num_rows($block_check) > 0) {
+        $block_status = mysqli_fetch_assoc($block_check);
+        if ($block_status['is_blocked'] == 1) {
+            $_SESSION['error'] = "Blocked users are not allowed to update groups.";
+            header("Location: ../public/edit-group.php?group_id=$group_id");
+            exit();
+        }
+    }
+
     $group_name = mysqli_real_escape_string($conn, $_POST['group_name']);
     $members = $_POST['members'] ?? [];
-    $created_by = $_SESSION['unique_id'];
+    $admin_ids = $_POST['admins'] ?? [];
+    $admin_only = isset($_POST['admin_only']) ? 1 : 0;
 
-    // Verify the user is the group creator
-    $check_creator = mysqli_query($conn, "SELECT * FROM groups WHERE group_id = '$group_id' AND created_by = '$created_by'");
-    if (mysqli_num_rows($check_creator) > 0) {
-        // Handle image upload
-        $image_name = '';
-        if (isset($_FILES['group_image']) && $_FILES['group_image']['error'] === UPLOAD_ERR_OK) {
-            $img_name = $_FILES['group_image']['name'];
-            $img_tmp = $_FILES['group_image']['tmp_name'];
-            $img_ext = pathinfo($img_name, PATHINFO_EXTENSION);
-            $allowed = ['jpg', 'jpeg', 'png'];
-
-            if (in_array(strtolower($img_ext), $allowed)) {
-                $new_img_name = time() . "_" . uniqid() . "." . $img_ext;
-                $upload_path = "images/" . $new_img_name;
-
-                if (move_uploaded_file($img_tmp, $upload_path)) {
-                    // Delete old image if it exists
-                    $old_img = mysqli_fetch_assoc(mysqli_query($conn, "SELECT group_image FROM groups WHERE group_id = '$group_id'"));
-                    if (!empty($old_img['group_image']) && file_exists("images/" . $old_img['group_image'])) {
-                        unlink("images/" . $old_img['group_image']);
-                    }
-                    $image_name = $new_img_name;
-                }
-            }
-        }
-
-        // Update group info
-        $update_query = "UPDATE groups SET group_name = '$group_name'";
-        if (!empty($image_name)) {
-            $update_query .= ", group_image = '$image_name'";
-        }
-        $update_query .= " WHERE group_id = '$group_id'";
-
-        if (mysqli_query($conn, $update_query)) {
-            // Update members
-            // First, remove all current members except creator
-            mysqli_query($conn, "DELETE FROM group_members WHERE group_id = '$group_id' AND unique_id != '$created_by'");
-
-            // Add selected members back
-            foreach ($members as $member_id) {
-                $member_id = mysqli_real_escape_string($conn, $member_id);
-                mysqli_query($conn, "INSERT INTO group_members (group_id, unique_id) VALUES ('$group_id', '$member_id')");
-            }
-
-            // Ensure creator is always an admin
-            mysqli_query($conn, "UPDATE group_members SET is_admin = true WHERE group_id = '$group_id' AND unique_id = '$created_by'");
-
-            header("Location: ../public/group-chat.php?group_id=$group_id");
-            exit();
-        } else {
-            echo "Failed to update group: " . mysqli_error($conn);
-        }
-    } else {
-        echo "You don't have permission to edit this group.";
+    if (count($members) > 250) {
+        $_SESSION['error'] = "You cannot add more than 250 members.";
+        header("Location: ../public/edit-group.php?group_id=$group_id");
+        exit();
     }
-} else {
-    header("location: ../login.php");
+
+    // ✅ Only admin can update
+    $admin_check = mysqli_query($conn, "SELECT * FROM group_members WHERE group_id = $group_id AND unique_id = $user_id AND is_admin = 1");
+    if (mysqli_num_rows($admin_check) === 0) {
+        $_SESSION['error'] = "Only admins can update the group.";
+        header("Location: ../public/edit-group.php?group_id=$group_id");
+        exit();
+    }
+
+    // ✅ Image upload
+    $image_name = '';
+    if (isset($_FILES['group_image']) && $_FILES['group_image']['error'] === UPLOAD_ERR_OK) {
+        $img_name = $_FILES['group_image']['name'];
+        $img_tmp = $_FILES['group_image']['tmp_name'];
+        $img_ext = pathinfo($img_name, PATHINFO_EXTENSION);
+        $allowed = ['jpg', 'jpeg', 'png'];
+
+        if (in_array(strtolower($img_ext), $allowed)) {
+            $new_img_name = time() . "_" . uniqid() . "." . $img_ext;
+            $upload_path = "images/" . $new_img_name;
+            if (move_uploaded_file($img_tmp, $upload_path)) {
+                $old_img = mysqli_fetch_assoc(mysqli_query($conn, "SELECT group_image FROM groups WHERE group_id = '$group_id'"));
+                if (!empty($old_img['group_image']) && file_exists("images/" . $old_img['group_image'])) {
+                    unlink("images/" . $old_img['group_image']);
+                }
+                $image_name = $new_img_name;
+            }
+        }
+    }
+
+    // ✅ Update group table
+    $query = "UPDATE groups SET group_name = '$group_name', admin_only = $admin_only";
+    if (!empty($image_name)) {
+        $query .= ", group_image = '$image_name'";
+    }
+    $query .= " WHERE group_id = $group_id";
+    mysqli_query($conn, $query);
+
+    // ✅ Clear non-admin members
+    mysqli_query($conn, "DELETE FROM group_members WHERE group_id = $group_id AND is_admin = 0");
+
+    // ✅ Reinsert updated members
+    foreach ($members as $member_id) {
+        $member_id = intval($member_id);
+        $is_admin = in_array($member_id, $admin_ids) ? 1 : 0;
+        mysqli_query($conn, "INSERT INTO group_members (group_id, unique_id, is_admin) VALUES ($group_id, $member_id, $is_admin)");
+    }
+
+    // ✅ Ensure the updater is admin
+    mysqli_query($conn, "INSERT INTO group_members (group_id, unique_id, is_admin) VALUES ($group_id, $user_id, 1)
+        ON DUPLICATE KEY UPDATE is_admin = 1");
+
+    $_SESSION['success'] = "Group updated successfully!";
+    header("Location: ../public/edit-group.php?group_id=$group_id");
+    exit();
 }
 ?>

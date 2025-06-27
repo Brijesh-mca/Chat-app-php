@@ -5,6 +5,15 @@ if (!isset($_SESSION['unique_id'])) {
     exit;
 }
 include_once "../php/config.php";
+
+$user_id = $_SESSION['unique_id'];
+$check_blocked = mysqli_query($conn, "SELECT is_blocked FROM users WHERE unique_id = '$user_id'");
+$is_blocked = mysqli_fetch_assoc($check_blocked)['is_blocked'];
+
+if ($is_blocked == 1) {
+    echo "<p style='color: red; text-align: center; padding: 20px;'>You are blocked and cannot create groups.</p>";
+    exit(); // Prevent rendering form
+}
 ?>
 
 <!DOCTYPE html>
@@ -185,32 +194,87 @@ include_once "../php/config.php";
     <div class="wrapper">
         <section class="form">
             <header class="header-animation">Create Group</header>
-            <form action="../php/create-group.php" method="POST" enctype="multipart/form-data">
-                <div class="field">
-                    <label>Group Name:</label>
-                    <input type="text" name="group_name" required><br>
-                </div>
-                <div class="field">
-                    <label>Group Image:</label>
-                    <input type="file" name="group_image" accept="image/*"><br>
-                </div>
-                <div class="field">
-                    <label>Select Members:</label><br>
-                    <div class="members-list">
-                        <?php
-                        $user_id = $_SESSION['unique_id'];
-                        $query = mysqli_query($conn, "SELECT * FROM users WHERE unique_id != $user_id");
-                        while ($row = mysqli_fetch_assoc($query)) {
-                            echo '<label><input type="checkbox" name="members[]" value="' . htmlspecialchars($row['unique_id']) . '"> ' . htmlspecialchars($row['fname'] . ' ' . $row['lname']) . '</label><br>';
-                        }
-                        ?>
-                    </div>
-                </div>
-                <div class="field button">
-                    <input type="submit" value="Create Group">
-                </div>
-            </form>
+            <form id="groupForm" action="../php/create-group.php" method="POST" enctype="multipart/form-data">
+    <div class="field">
+        <label>Group Name:</label>
+        <input type="text" name="group_name" required><br>
+    </div>
+
+    <div class="field">
+        <label>Group Image:</label>
+        <input type="file" name="group_image" accept="image/*"><br>
+    </div>
+
+    <div class="field">
+        <label>Select Members: <small>(Max 250)</small></label>
+        <div class="members-list" id="membersList">
+            <?php
+            $user_id = $_SESSION['unique_id'];
+            $query = mysqli_query($conn, "SELECT * FROM users WHERE unique_id != $user_id");
+            while ($row = mysqli_fetch_assoc($query)) {
+                echo '<label><input type="checkbox" name="members[]" value="' . htmlspecialchars($row['unique_id']) . '"> ' . htmlspecialchars($row['fname'] . ' ' . $row['lname']) . '</label><br>';
+            }
+            ?>
+        </div>
+
+        <!-- Counter + Warning -->
+        <p id="memberCount" style="margin-top: 8px; font-size: 0.9rem; color: #333;">
+            Selected: 0 / 250
+        </p>
+        <p id="memberCountWarning" style="color: red; font-size: 0.85rem; display: none;">
+            You can select a maximum of 250 members.
+        </p>
+    </div>
+
+    <div class="field button">
+        <input type="submit" value="Create Group">
+    </div>
+</form>
+
+<!-- ✅ JavaScript for Live Count and Limit -->
+<script>
+    const form = document.getElementById("groupForm");
+    const checkboxes = form.querySelectorAll('input[name="members[]"]');
+    const warning = document.getElementById("memberCountWarning");
+    const counter = document.getElementById("memberCount");
+
+    function updateCount() {
+        const selected = [...checkboxes].filter(cb => cb.checked).length;
+        counter.textContent = `Selected: ${selected} / 250`;
+
+        if (selected > 250) {
+            warning.style.display = "block";
+        } else {
+            warning.style.display = "none";
+        }
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener("change", function () {
+            // Auto-uncheck if trying to exceed limit
+            const selected = [...checkboxes].filter(cb => cb.checked);
+            if (selected.length > 250) {
+                this.checked = false;
+            }
+            updateCount();
+        });
+    });
+
+    form.addEventListener("submit", function (e) {
+        const selected = [...checkboxes].filter(cb => cb.checked);
+        if (selected.length > 250) {
+            e.preventDefault();
+            warning.style.display = "block";
+        }
+    });
+
+    // Initialize on load
+    updateCount();
+</script>
+
         </section>
     </div>
+
+    
 </body>
 </html>
