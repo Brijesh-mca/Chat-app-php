@@ -8,6 +8,23 @@ if (!isset($_SESSION['unique_id'])) {
 <body>
     <div class="wrapper">
         <div class="container">
+            <!-- Left Section (5% by default, expandable to 30%, visible only on laptop view) -->
+            <section class="left-section">
+                <div class="left-content">
+                    <ul class="menu-items">
+                        <a href="#" class="menu-toggle"><i class="fas fa-bars"></i></a>
+                        <li><a href="users.php" class="menu-item"><i class="fas fa-comment"></i><span>Chats</span></a></li>
+                        <li><a href="create-group.php" class="menu-item"><i class="fas fa-users"></i><span>Create Groups</span></a></li>
+                        <li><a href="../public/chat-requests.php" class="menu-item"><i class="fas fa-user-plus"></i><span>Chat Requests</span></a></li>
+                        <li><a href="contact-list.php" class="menu-item"><i class="fas fa-address-book"></i><span>Contacts</span></a></li>
+                    </ul>
+                    <ul class="menu-items">
+                        <li><a href="../public/settings.php" class="menu-item"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+                        <li><a href="../public/help.php" class="menu-item"><i class="fas fa-user"></i><span>Profile</span></a></li>
+                    </ul>
+                </div>
+            </section>
+
             <!-- Sidebar (30%) -->
             <section class="sidebar">
                 <header>
@@ -17,25 +34,13 @@ if (!isset($_SESSION['unique_id'])) {
                     if (mysqli_num_rows($sql) > 0) {
                         $row = mysqli_fetch_assoc($sql);
                     } else {
-                        $row = ['img' => 'default.jpg', 'fname' => 'Unknown', 'lname' => 'User', 'status' => 'Offline']; // Fallback
+                        $row = ['img' => 'default.jpg', 'fname' => 'Unknown', 'lname' => 'User', 'status' => 'Offline'];
                     }
                     ?>
                     <div class="content">
-                        <img src="../php/images/<?php echo !empty($row['img']) ? htmlspecialchars($row['img']) : 'default.jpg'; ?>" alt="Profile Image" onerror="this.src='../php/images/default.jpg'">
-                        <div class="details">
-                            <span><?php echo htmlspecialchars($row['fname'] . " " . $row['lname']); ?></span>
-                            <p><?php echo htmlspecialchars($row['status']); ?></p>
-                        </div>
+                        <h1>Chats</h1>
                     </div>
-                    <a href="../public/settings.php" class="settings-btn">⚙️</a>
                 </header>
-
-                <!-- Icon Buttons -->
-                <div class="action-buttons">
-                    <a href="create-group.php" class="action-btn" title="Create Group"><i class="fas fa-users"></i></a>
-                    <a href="chat-requests.php" class="action-btn" title="Chat Requests"><i class="fas fa-user-plus"></i></a>
-                    <a href="contact-list.php" class="action-btn" title="Contacts"><i class="fas fa-address-book"></i></a>
-                </div>
 
                 <!-- Search Bar -->
                 <div class="search">
@@ -43,10 +48,20 @@ if (!isset($_SESSION['unique_id'])) {
                     <button><i class="fas fa-search"></i></button>
                 </div>
 
+                <div class="toggle-buttons">
+                    <button id="show-users" class="toggle-btn active">Users</button>
+                    <button id="show-groups" class="toggle-btn">Groups</button>
+                </div>
+
                 <!-- Combined Groups and Users List -->
                 <div class="chat-list">
+                    <!-- User List -->
+                    <div class="users-list" id="users-list">
+                        <!-- Placeholder for user list content -->
+                        <p>User list content goes here.</p>
+                    </div>
                     <!-- Group List -->
-                    <div class="group-list">
+                    <div class="group-list" id="group-list" style="display: none;">
                         <?php
                         $unique_id = $_SESSION['unique_id'];
                         $group_query = mysqli_query($conn, 
@@ -65,8 +80,6 @@ if (!isset($_SESSION['unique_id'])) {
                         }
                         ?>
                     </div>
-                    <!-- User List -->
-                    <div class="users-list"></div>
                 </div>
             </section>
 
@@ -84,6 +97,8 @@ if (!isset($_SESSION['unique_id'])) {
                         <img src="../php/images/<?php echo $row['img'] ?>" alt="">
                         <div class="details">
                             <span><?php echo $row['fname'] . " " . $row['lname'] ?></span>
+                           
+                         
                             <p><?php echo $row['status'] ?></p>
                         </div>
                     </header>
@@ -116,7 +131,7 @@ if (!isset($_SESSION['unique_id'])) {
                             <?php
                             $creator_check = mysqli_query($conn, "SELECT * FROM groups WHERE group_id = '$group_id' AND created_by = '{$_SESSION['unique_id']}'");
                             if (mysqli_num_rows($creator_check) > 0) {
-                                echo '<a href="edit-group.php?group_id=' . $group_id . '" class="edit-group-btn" style="margin-left:10px; font-size: 14px;">Edit Group</a>';
+                                echo '<a href="edit-group.php?group_id=' . $group_id . '" class="edit-group-btn" style="margin-left:10px; font-size: 14px; ">Edit Group</a>';
                             }
                             ?>
                             <p>Group Chat</p>
@@ -148,97 +163,132 @@ if (!isset($_SESSION['unique_id'])) {
     <script src="js/users.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.querySelector('.sidebar');
-            const chatArea = document.querySelector('.chat-area');
-            const chatList = document.querySelector('.chat-list');
-            const backIcons = document.querySelectorAll('.back-icon');
+    document.addEventListener('DOMContentLoaded', function() {
+        const leftSection = document.querySelector('.left-section');
+        const menuToggle = document.querySelector('.menu-toggle');
+        const menuItems = document.querySelectorAll('.menu-item span');
+        const sidebar = document.querySelector('.sidebar');
+        const chatArea = document.querySelector('.chat-area');
+        const chatList = document.querySelector('.chat-list');
+        const backIcons = document.querySelectorAll('.back-icon');
 
-            // Check if in mobile/tablet view
-            const isMobileView = window.matchMedia('(max-width: 768px)').matches;
+        // Function to update visibility based on URL and menu state
+        function updateVisibility() {
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            const isExpanded = leftSection.classList.contains('expanded');
 
-            // Function to update visibility based on URL
-            function updateVisibility() {
-                const isMobile = window.matchMedia('(max-width: 768px)').matches;
-                if (isMobile) {
-                    if (window.location.search.includes('user_id') || window.location.search.includes('group_id')) {
-                        sidebar.style.display = 'none';
-                        chatArea.style.display = 'flex';
-                    } else {
-                        sidebar.style.display = 'block';
-                        chatArea.style.display = 'none';
-                    }
-                } else {
-                    // Desktop view: show both
-                    sidebar.style.display = 'flex';
+            if (isMobile) {
+                // Hide left section on mobile/tablet view
+                leftSection.style.display = 'none';
+                if (window.location.search.includes('user_id') || window.location.search.includes('group_id')) {
+                    sidebar.style.display = 'none';
                     chatArea.style.display = 'flex';
+                } else {
+                    sidebar.style.display = 'block';
+                    chatArea.style.display = 'none';
                 }
-            }
+            } else {
+                // Desktop view: show left section and adjust widths
+                leftSection.style.display = 'block';
+                leftSection.style.width = isExpanded ? '15%' : '5%';
+                sidebar.style.left = isExpanded ? '5%' : '5%';
+                sidebar.style.width = isExpanded ? '30%' : '30%';
+                chatArea.style.marginLeft = isExpanded ? '35%' : '35%';
+                chatArea.style.width = isExpanded ? '70%' : '65%';
 
-            // Initial visibility setup
+                menuItems.forEach(item => {
+                    item.style.display = isExpanded ? 'inline' : 'none';
+                });
+            }
+        }
+
+        // Toggle menu visibility
+        menuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            leftSection.classList.toggle('expanded');
             updateVisibility();
-
-            if (isMobileView) {
-                // Use event delegation on .chat-list to handle clicks on dynamically added links
-                chatList.addEventListener('click', function(e) {
-                    const link = e.target.closest('.chat-link, .users-list a');
-                    if (link) {
-                        e.preventDefault(); // Prevent default navigation
-                        sidebar.style.display = 'none';
-                        chatArea.style.display = 'flex';
-                        // Navigate to the chat URL
-                        window.location.href = link.href;
-                    }
-                });
-
-                // Handle back button click
-                backIcons.forEach(icon => {
-                    icon.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        chatArea.style.display = 'none';
-                        sidebar.style.display = 'block';
-                        window.location.href = 'users.php'; // Navigate back to user list
-                    });
-                });
-            }
-
-            // Update layout on window resize
-            window.addEventListener('resize', updateVisibility);
-
-            // Ensure profile images in users-list load correctly or fall back to default
-            function fixUsersListProfileImages() {
-                const userImages = document.querySelectorAll('.users-list img:not([data-fixed])');
-                userImages.forEach(image => {
-                    // Mark image as processed to avoid re-processing
-                    image.setAttribute('data-fixed', 'true');
-                    // Rewrite image src to correct path (from 'images/' to '../php/images/')
-                    if (image.src.includes('/images/')) {
-                        const filename = image.src.split('/images/')[1] || 'default.jpg';
-                        image.src = '../php/images/' + filename;
-                    }
-                    // Add onerror handler to set default image if the source fails
-                    image.onerror = function() {
-                        this.src = '../php/images/default.jpg';
-                    };
-                    // Check if the image source is empty or invalid and set default immediately
-                    if (!image.src || image.src.includes('undefined') || image.src === window.location.href || image.src.endsWith('/images/')) {
-                        image.src = '../php/images/default.jpg';
-                    }
-                });
-            }
-
-            // Run the function after DOM is loaded
-            fixUsersListProfileImages();
-
-            // Use MutationObserver with debouncing to handle dynamic updates
-            let debounceTimeout;
-            const usersList = document.querySelector('.users-list');
-            const observer = new MutationObserver(() => {
-                clearTimeout(debounceTimeout);
-                debounceTimeout = setTimeout(fixUsersListProfileImages, 100);
-            });
-            observer.observe(usersList, { childList: true, subtree: true });
         });
+
+        // Initial visibility setup
+        updateVisibility();
+
+        // Use event delegation on .chat-list to handle clicks on dynamically added links
+        chatList.addEventListener('click', function(e) {
+            const link = e.target.closest('.chat-link, .users-list a');
+            if (link) {
+                e.preventDefault();
+                leftSection.style.display = 'none';
+                sidebar.style.display = 'none';
+                chatArea.style.display = 'flex';
+                window.location.href = link.href;
+            }
+        });
+
+        // Handle back button click
+        backIcons.forEach(icon => {
+            icon.addEventListener('click', function(e) {
+                e.preventDefault();
+                chatArea.style.display = 'none';
+                sidebar.style.display = 'block';
+                if (!window.matchMedia('(max-width: 768px)').matches) {
+                    leftSection.style.display = 'block';
+                }
+                window.location.href = 'users.php';
+            });
+        });
+
+        // Handle user or group click
+        function handleUserOrGroupClick() {
+            document.getElementById('show-users').addEventListener('click', function() {
+                document.getElementById('users-list').style.display = 'block';
+                document.getElementById('group-list').style.display = 'none';
+                this.classList.add('active');
+                document.getElementById('show-groups').classList.remove('active');
+            });
+
+            document.getElementById('show-groups').addEventListener('click', function() {
+                document.getElementById('group-list').style.display = 'block';
+                document.getElementById('users-list').style.display = 'none';
+                this.classList.add('active');
+                document.getElementById('show-users').classList.remove('active');
+            });
+        }
+
+        handleUserOrGroupClick();
+
+        // Update layout on window resize
+        window.addEventListener('resize', updateVisibility);
+
+        // Ensure profile images in users-list load correctly or fall back to default
+        function fixUsersListProfileImages() {
+            const userImages = document.querySelectorAll('.users-list img:not([data-fixed])');
+            userImages.forEach(image => {
+                image.setAttribute('data-fixed', 'true');
+                if (image.src.includes('/images/')) {
+                    const filename = image.src.split('/images/')[1] || 'default.jpg';
+                    image.src = '../php/images/' + filename;
+                }
+                image.onerror = function() {
+                    this.src = '../php/images/default.jpg';
+                };
+                if (!image.src || image.src.includes('undefined') || image.src === window.location.href || image.src.endsWith('/images/')) {
+                    image.src = '../php/images/default.jpg';
+                }
+            });
+        }
+
+        // Run the function after DOM is loaded
+        fixUsersListProfileImages();
+
+        // Use MutationObserver with debouncing to handle dynamic updates
+        let debounceTimeout;
+        const usersList = document.querySelector('.users-list');
+        const observer = new MutationObserver(() => {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(fixUsersListProfileImages, 100);
+        });
+        observer.observe(usersList, { childList: true, subtree: true });
+    });
     </script>
 
     <style>
@@ -264,27 +314,87 @@ if (!isset($_SESSION['unique_id'])) {
             border-radius: 10px;
             overflow: hidden;
         }
-        .sidebar {
-            width: 30%;
-            background: teal;
-            display: flex;
+        .left-section {
+            border-right: 1px solid red !important;
+            width: 5%;
+            z-index: 999;
+            background: #fff;
+            display: none; /* Hidden by default */
             flex-direction: column;
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
+            border-right: 1px solid #ddd;
+            transition: width 0.3s ease;
+        }
+        .left-section.expanded {
+            width: 15%;
+        }
+        .left-content {
+            padding: 10px 15px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: space-between;    
+            height: inherit;
+        }
+        .menu-toggle {
+            font-size: 20px;
+            color: #333;
+            text-decoration: none;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .menu-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .menu-items li {
+            margin-bottom: 20px;
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            font-size: 20px;
+            transition: color 0.3s ease;
+        }
+        .menu-item i {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        .menu-item span {
+            display: none;
+        }
+        .left-section.expanded .menu-item span {
+            display: inline;
+        }
+        .sidebar {
+            width: 30%;
+            background: teal;
+            border-right: 1px solid red !important;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0; /* Adjusted to left: 0 since left-section is hidden on mobile */
         }
         .chat-area {
-            width: 70%;
+            width: 65%;
             background: #e5ddd5;
             display: flex;
             flex-direction: column;
             height: 100vh;
-            margin-left: 30%;
+            margin-left: 35%; /* Adjusted for desktop */
         }
         .sidebar header {
-            padding: 15px;
-            border-bottom: 1px solid #e0e0e0;
+            padding: 7px 20px;
+            /* border-bottom: 1px solid #e0e0e0; */
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -299,8 +409,8 @@ if (!isset($_SESSION['unique_id'])) {
             height: 40px;
             border-radius: 50%;
             margin-right: 10px;
-            object-fit: cover; /* Ensure image fits properly */
-            display: block; /* Prevent hiding */
+            object-fit: cover;
+            display: block;
         }
         .sidebar .details span {
             font-weight: bold;
@@ -317,6 +427,28 @@ if (!isset($_SESSION['unique_id'])) {
             text-decoration: none;
             color: #fff;
             margin-left: 10px;
+        }
+        .toggle-buttons {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 15px;
+            background: teal;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .toggle-btn {
+            background: white;
+            border: none;
+            color: black;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 15px;
+            padding: 7px 15px;
+            transition: background 0.3s, color 0.3s;
+        }
+        .toggle-btn.active {
+            background: #ddd;
+            color: #333;
         }
         .action-buttons {
             display: flex;
@@ -344,9 +476,9 @@ if (!isset($_SESSION['unique_id'])) {
         .search input {
             width: calc(100% - 40px);
             padding: 8px;
-            border-bottom: 1px solid red;
+            border: 1px solid white;
             outline: none;
-            border-radius: 5px;
+            border-radius: 15px;
         }
         .search button {
             background: teal;
@@ -354,6 +486,7 @@ if (!isset($_SESSION['unique_id'])) {
             border: none;
             padding: 8px;
             border-radius: 5px;
+            display: none;
             cursor: pointer;
             margin-left: 10px;
             border-bottom: 1px solid red;
@@ -406,6 +539,13 @@ if (!isset($_SESSION['unique_id'])) {
             object-fit: cover;
             display: block;
         }
+    .edit-group-btn {
+    margin-left: auto;
+    font-size: 14px;
+    color: #fff;
+    text-decoration: none;
+}
+
         .group-item a i {
             margin-right: 10px;
             color: #888;
@@ -413,6 +553,8 @@ if (!isset($_SESSION['unique_id'])) {
         .chat-area header {
             background: teal;
             padding: 15px;
+            border-bottom: 1px solid red !important;
+            border-left: 1px solid red !important;
             display: flex;
             align-items: center;
             color: #fff;
@@ -476,6 +618,7 @@ if (!isset($_SESSION['unique_id'])) {
             flex-direction: column;
             flex-grow: 1;
         }
+        
         .chat .details p {
             font-size: 16px;
             margin: 0 0 4px 0;
@@ -503,6 +646,8 @@ if (!isset($_SESSION['unique_id'])) {
             display: inline;
         }
         .typing-area {
+            border-top: 1px solid red !important;
+            border-left: 1px solid red !important;
             display: flex;
             align-items: center;
             padding: 10px;
@@ -548,14 +693,30 @@ if (!isset($_SESSION['unique_id'])) {
         }
 
         /* Responsive Design */
+        @media (min-width: 769px) {
+            .left-section {
+                display: flex; /* Show left section only on laptop view */
+            }
+            .sidebar {
+                left: 5%; /* Adjust sidebar position when left section is visible */
+            }
+            .chat-area {
+                margin-left: 35%;
+                width: 65%;
+            }
+        }
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
+            }
+            .left-section {
+                display: none; /* Hide left section on mobile */
             }
             .sidebar {
                 width: 100%;
                 height: 100vh;
                 position: static;
+                left: 0;
                 display: block;
             }
             .chat-area {
@@ -587,6 +748,9 @@ if (!isset($_SESSION['unique_id'])) {
             }
             .typing-area .input-field {
                 padding: 8px;
+            }
+            .menu-item span {
+                display: inline; /* Show text on mobile by default */
             }
         }
         @media (max-width: 480px) {

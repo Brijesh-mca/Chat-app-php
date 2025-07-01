@@ -1,14 +1,14 @@
 const searchBar = document.querySelector(".sidebar .search input");
-const searchBtn = document.querySelector(".sidebar .search button");
+// const searchBtn = document.querySelector(".sidebar .search button");
 const usersList = document.querySelector(".sidebar .users-list");
 
 // Toggle search bar and button active state
-searchBtn.onclick = () => {
-    searchBar.classList.toggle("active");
-    searchBar.focus();
-    searchBtn.classList.toggle("active");
-    searchBar.value = "";
-};
+// searchBtn.onclick = () => {
+//     searchBar.classList.toggle("active");
+//     searchBar.focus();
+//     searchBtn.classList.toggle("active");
+//     searchBar.value = "";
+// };
 
 // Debounced search handler
 let debounceTimeout;
@@ -26,6 +26,8 @@ searchBar.onkeyup = () => {
             xhrReset.onload = () => {
                 if (xhrReset.readyState === XMLHttpRequest.DONE && xhrReset.status === 200) {
                     usersList.innerHTML = xhrReset.response;
+                    
+                    
                 }
             };
             xhrReset.send();
@@ -61,9 +63,11 @@ setInterval(() => {
                 if (lastContent !== newContent) {
                     usersList.innerHTML = newContent;
                     lastContent = newContent;
+                  
+                    
                 }
             }
         }
     };
     xhr.send();
-}, 5000);
+}, 500);
