@@ -193,7 +193,7 @@ if ($is_blocked == 1) {
 <body>
     <div class="wrapper">
         <section class="form">
-            <header class="header-animation">Create Group</header>
+            <!-- <header class="header-animation">Create Group</header> -->
             <form id="groupForm" action="../php/create-group.php" method="POST" enctype="multipart/form-data">
     <div class="field">
         <label>Group Name:</label>

@@ -280,8 +280,10 @@ while ($row = mysqli_fetch_assoc($members_result)) {
         <?php if (!empty($error_message)) : ?>
             <div class="error-message"><?= $error_message ?></div>
         <?php endif; ?>
+        <button class="back-button" onclick="history.back()">Back</button>
 
         <form action="" method="POST" enctype="multipart/form-data">
+            
             <div class="field input">
                 <label>Group Name:</label>
                 <input type="text" name="group_name" value="<?= htmlspecialchars($group['group_name']) ?>" required>
@@ -325,7 +327,7 @@ while ($row = mysqli_fetch_assoc($members_result)) {
             </div>
 
             <div class="field button">
-                <input type="submit" name="update_group" value="Update Group">
+                <input type="submit"  name="update_group" value="Update Group"  onclick="window.location.href='users.php'">
             </div>
         </form>
     </section>

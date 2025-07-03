@@ -1,455 +1,1204 @@
+<?php
+session_start();
+if (!isset($_SESSION['unique_id'])) {
+    header("location: login.php");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Login to ChatSphere, a platform to connect instantly with friends and colleagues.">
-    <meta name="keywords" content="ChatSphere, login, chat app, communication">
-    <title>ChatSphere - Login Portal</title>
-    <script>
-        // Fallback for GSAP if CDN fails
-        window.gsap = window.gsap || {};
-        window.gsap.plugins = window.gsap.plugins || {};
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" onerror="document.write('<script src=\"js/gsap.min.js\"><\/script>')"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js" onerror="document.write('<script src=\"js/TextPlugin.min.js\"><\/script>')"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Arial', sans-serif;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #2c3e50, #3498db);
-            overflow: hidden;
-            position: relative;
-        }
-        .container {
-            text-align: center;
-            color: white;
-            z-index: 20;
-            padding: 0 1.5rem;
-            max-width: 90%;
-        }
-        h1 {
-            font-size: clamp(2rem, 8vw, 3.8rem);
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        }
-        p {
-            font-size: clamp(1rem, 4vw, 1.6rem);
-            margin-bottom: 1.5rem;
-            display: inline-block;
-            white-space: nowrap;
-            overflow: hidden;
-            position: relative;
-        }
-        .cursor {
-            display: inline-block;
-            font-weight: bold;
-            animation: blink 0.7s step-end infinite;
-        }
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
-        .button-group {
-            display: flex;
-            flex-direction: row;
-            gap: 1.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .login-btn {
-            padding: 0.8rem 2rem;
-            font-size: clamp(0.9rem, 3vw, 1.2rem);
-            font-weight: bold;
-            color:rgb(255, 255, 255);
-            background: none;
-            border: 2px solid rgb(255, 255, 255);
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: background 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            transform: perspective(500px);
-            min-width: 150px;
-        }
-        .login-btn:hover {
-            background: #ecf0f1;
-            color: #2c3e50;
-        }
-        .login-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.4s ease, height 0.4s ease;
-        }
-        .login-btn:hover::before {
-            width: 200px;
-            height: 200px;
-        }
-        .animate-text, .animate-btn {
-            opacity: 1; /* Fallback for visibility */
-        }
-        /* Background Elements */
-        .wave {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent);
-            opacity: 0.3;
-            z-index: 2;
-        }
-        .big-circle {
-            position: absolute;
-            width: clamp(100px, 20vw, 200px);
-            height: clamp(100px, 20vw, 200px);
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.15), transparent);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 3;
-            will-change: transform, opacity;
-        }
-        .particle {
-            position: absolute;
-            width: clamp(8px, 1vw, 12px);
-            height: clamp(8px, 1vw, 12px);
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 4;
-            will-change: transform;
-        }
-        .chat-bubble {
-            position: absolute;
-            width: clamp(20px, 4vw, 40px);
-            height: clamp(20px, 4vw, 40px);
-            background: url('#chat-bubble') center/cover;
-            pointer-events: none;
-            z-index: 5;
-            will-change: transform, opacity;
-        }
-        .typing-indicator {
-            position: absolute;
-            width: clamp(30px, 5vw, 50px);
-            height: clamp(20px, 3vw, 30px);
-            background: url('#typing-indicator') center/cover;
-            pointer-events: none;
-            z-index: 6;
-            will-change: transform, opacity;
-        }
-        .mockup {
-            position: absolute;
-            width: clamp(40%, 50vw, 50%);
-            height: clamp(40%, 50vw, 50%);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" fill="rgba(255,255,255,0.1)"><rect x="50" y="50" width="500" height="300" rx="20" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="4"/><text x="300" y="200" font-family="Arial" font-size="40" fill="rgba(255,255,255,0.3)" text-anchor="middle">Chat-App</text></svg>') center/cover;
-            opacity: 0.1;
-            z-index: 1;
-        }
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: clamp(1.8rem, 7vw, 3rem);
-            }
-            p {
-                font-size: clamp(0.9rem, 3.5vw, 1.4rem);
-            }
-            .button-group {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            .login-btn {
-                padding: 0.6rem 1.5rem;
-                min-width: 120px;
-            }
-        }
-        @media (max-width: 480px) {
-            h1 {
-                font-size: clamp(1.5rem, 6vw, 2.5rem);
-            }
-            p {
-                font-size: clamp(0.8rem, 3vw, 1.2rem);
-            }
-            .mockup, .big-circle {
-                width: 80%;
-                height: 80%;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Application</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #f0f2f5;
+    }
+
+    /* Left Section (Sidebar/Footer) */
+    .left-section {
+      width: 30vw;
+      background-color: #2c3e50;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      transform: translateX(-20vw); /* Show 10vw by default */
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .left-section.expanded {
+      transform: translateX(0); /* Show full 30vw */
+    }
+
+    .left-section .menu-toggle {
+      font-size: 20px;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 10px;
+      display: block;
+      cursor: pointer;
+    }
+
+    .left-content {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      justify-content: space-between;
+    }
+
+    .menu-items {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .menu-items li {
+      margin: 10px 0;
+    }
+
+    .menu-item {
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .menu-item i {
+      margin-right: 10px;
+      font-size: 20px;
+    }
+
+    .menu-item span {
+      display: none; /* Hide text by default */
+    }
+
+    .left-section.expanded .menu-item span {
+      display: inline; /* Show text when expanded */
+    }
+
+    .menu-item:hover,
+    .menu-item.active {
+      background-color: #34495e;
+    }
+
+    /* Chat List (Sidebar) */
+    .chat-list {
+      width: 30vw;
+      background: #fff;
+      border-right: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 10vw;
+      z-index: 1;
+    }
+
+    .chat-list header {
+      padding: 15px 20px;
+      border-bottom: 1px solid #e0e0e0;
+      background: #2c3e50;
+      color: white;
+      display: flex;
+      align-items: center;
+    }
+
+    .chat-list header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .chat-list .search {
+      padding: 10px 15px;
+      background: #fff;
+      display: flex;
+    }
+
+    .chat-list .search input {
+      width: calc(100% - 40px);
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 15px;
+      outline: none;
+    }
+
+    .chat-list .search button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    .chat-list .toggle-buttons {
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 15px;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .chat-list .toggle-btn {
+      background: none;
+      border: none;
+      color: #333;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 15px;
+    }
+
+    .chat-list .toggle-btn.active {
+      background: #3498db;
+      color: white;
+    }
+
+    .chat-list .users-list,
+    .chat-list .group-list,
+    .chat-list .requests-list {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 15px;
+      background: #f4f4f4;
+    }
+
+    .chat-list .users-list,
+    .chat-list .group-list,
+    .chat-list .requests-list {
+      display: none;
+    }
+
+    .chat-list .users-list.active,
+    .chat-list .group-list.active,
+    .chat-list .requests-list.active {
+      display: block;
+    }
+
+    .chat-list .user-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      background: white;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      display: block;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .chat-list .user-item:hover {
+      background: #e0e0e0;
+    }
+
+    .chat-list .user-item .content {
+      display: flex;
+      align-items: center;
+    }
+
+    .chat-list .group-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      background: white;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .chat-list .group-item:hover {
+      background: #e0e0e0;
+    }
+
+    .chat-list .group-item a {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .chat-list .group-item a i {
+      margin-right: 10px;
+      color: #888;
+    }
+
+    .chat-list .user-item img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+      object-fit: cover;
+    }
+
+    .chat-list .user-item .details span {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .chat-list .user-item .details p {
+      font-size: 12px;
+      color: #888;
+      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-list .user-item .details p .last-message {
+      max-width: 70%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-list .user-item .details p .timestamp {
+      font-size: 10px;
+      color: #666;
+    }
+
+    /* Chat Requests Styles */
+    .chat-list .requests-list .request-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-bottom: 10px;
+    }
+
+    .chat-list .requests-list .request-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .chat-list .requests-list .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-list .requests-list .user-info img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .chat-list .requests-list .user-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-list .requests-list .user-name {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .chat-list .requests-list .request-text {
+      font-size: 14px;
+      color: #888;
+      margin: 0;
+    }
+
+    .chat-list .requests-list .request-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .chat-list .requests-list .btn-approve {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background-color: #28a745;
+      color: white;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .chat-list .requests-list .btn-approve:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+    }
+
+    .chat-list .requests-list .btn-approve:active {
+      transform: scale(0.95);
+    }
+
+    .chat-list .requests-list .no-requests {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+      color: #888;
+      font-size: 16px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .chat-list .requests-list .no-requests i {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    /* Main Content */
+    .main-content {
+      width: 30vw;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: #f4f4f4;
+      position: fixed;
+      top: 0;
+      left: 40vw;
+      height: 100vh;
+      z-index: 1;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .user-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .user-list li {
+      padding: 10px;
+      margin: 5px 0;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .user-list li:hover {
+      background-color: #d0d0d0;
+    }
+
+    .user-list li.active {
+      background-color: #3498db;
+      color: white;
+    }
+
+    /* Chat Area */
+    .chat-area {
+      width: calc(100vw - 10vw - 30vw); /* ~60% */
+      background: #ecf0f1;
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      right: 0;
+      top: 0;
+      height: 100vh;
+      z-index: 1;
+    }
+
+    .chat-area header {
+      background: #2c3e50;
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      color: white;
+    }
+
+    .chat-area .back-icon {
+      color: white;
+      font-size: 18px;
+      margin-right: 15px;
+      text-decoration: none;
+    }
+
+    .chat-area img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+      object-fit: cover;
+    }
+
+    .chat-area .details span {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .chat-area .details p {
+      font-size: 12px;
+      margin: 0;
+    }
+
+    .chat-area .edit-group-btn {
+      margin-left: 10px;
+      font-size: 14px;
+      color: white;
+      text-decoration: none;
+    }
+
+    .chat-box {
+      flex-grow: 1;
+      background: url('https://static.whatsapp.net/rsrc.php/v3/yP/r/r6Z9xDgKm8l.png');
+      background-size: cover;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat {
+      display: flex;
+      max-width: 60%;
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      word-break: break-word;
+      align-items: flex-start;
+    }
+
+    .chat.outgoing {
+      align-self: flex-end;
+      background: #dcf8c6;
+      color: #000;
+    }
+
+    .chat.incoming {
+      align-self: flex-start;
+      background: #fff;
+      color: #000;
+      box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+    }
+
+    .chat .details p {
+      font-size: 16px;
+      margin: 0 0 4px 0;
+      line-height: 1.4;
+    }
+
+    .chat .time {
+      font-size: 10px;
+      color: #888;
+      align-self: flex-end;
+      margin-top: 4px;
+    }
+
+    .typing-area {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      background: #2c3e50;
+      border-top: 1px solid #ddd;
+    }
+
+    .typing-area .file-input {
+      display: none;
+    }
+
+    .typing-area .insert-button {
+      font-size: 20px;
+      color: white;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .typing-area .input-field {
+      flex-grow: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      outline: none;
+    }
+
+    .typing-area button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    .welcome-message {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      color: #888;
+      background: url('https://static.whatsapp.net/rsrc.php/v3/yP/r/r6Z9xDgKm8l.png');
+      background-size: cover;
+    }
+
+    /* Mobile Footer Styles */
+    @media (max-width: 768px) {
+      .left-section {
+        width: 100%;
+        height: 60px;
+        top: auto;
+        bottom: 0;
+        transform: none;
+        display: flex; /* Always visible */
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+        padding: 10px;
+        z-index: 1000;
+      }
+      .left-section .menu-toggle {
+        display: none;
+      }
+      .left-section .menu-items {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+      }
+      .left-section .menu-items li {
+        margin: 0;
+      }
+      .left-section .menu-item {
+        padding: 5px;
+      }
+      .left-section .menu-item span {
+        display: none;
+      }
+      .chat-list {
+        margin-left: 0;
+        width: 100%;
+        position: static;
+        height: calc(100vh - 60px);
+        display: block;
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100%;
+        position: static;
+        height: calc(100vh - 60px);
+        display: block;
+      }
+      .chat-area {
+        width: 100%;
+        position: static;
+        height: calc(100vh - 60px);
+        display: none;
+      }
+      .chat-area.active {
+        display: flex;
+      }
+      .chat-list .user-item img,
+      .chat-list header img,
+      .chat-list .requests-list .user-info img {
+        width: 35px;
+        height: 35px;
+      }
+      .chat-list .details span,
+      .chat-area .details span,
+      .chat-list .requests-list .user-name {
+        font-size: 14px;
+      }
+      .chat {
+        max-width: 80%;
+      }
+      .chat .details p {
+        font-size: 15px;
+      }
+      .chat .time {
+        font-size: 9px;
+      }
+      .chat-list .requests-list .request-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px;
+      }
+      .chat-list .requests-list .user-info {
+        margin-bottom: 10px;
+      }
+      .chat-list .requests-list .user-name {
+        font-size: 15px;
+      }
+      .chat-list .requests-list .request-text {
+        font-size: 13px;
+      }
+      .chat-list .requests-list .request-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+      .chat-list .requests-list .btn-approve {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .chat-list .user-item img,
+      .chat-list header img,
+      .chat-area img,
+      .chat-list .requests-list .user-info img {
+        width: 30px;
+        height: 30px;
+      }
+      .chat-list .details span,
+      .chat-area .details span,
+      .chat-list .requests-list .user-name {
+        font-size: 13px;
+      }
+      .chat .details p {
+        font-size: 14px;
+      }
+      .chat .time {
+        font-size: 8px;
+      }
+      .chat-list .requests-list .request-text {
+        font-size: 12px;
+      }
+      .chat-list .requests-list .btn-approve {
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- SVG Sprite -->
-    <svg style="display: none;">
-        <symbol id="chat-bubble" viewBox="0 0 24 24">
-            <path fill="rgba(255,255,255,0.5)" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
-        </symbol>
-        <symbol id="typing-indicator" viewBox="0 0 24 24">
-            <circle fill="rgba(255,255,255,0.4)" cx="4" cy="12" r="2"/>
-            <circle fill="rgba(255,255,255,0.4)" cx="12" cy="12" r="2"/>
-            <circle fill="rgba(255,255,255,0.4)" cx="20" cy="12" r="2"/>
-        </symbol>
-    </svg>
-
-    <!-- Background Elements -->
-    <div class="mockup"></div>
-    <div class="wave"></div>
-    <div class="big-circle" id="circle1"></div>
-    <div class="big-circle" id="circle2"></div>
-    <div class="big-circle" id="circle3"></div>
-    <div class="particle" id="particle1"></div>
-    <div class="particle" id="particle2"></div>
-    <div class="particle" id="particle3"></div>
-    <div class="particle" id="particle4"></div>
-    <div class="particle" id="particle5"></div>
-    <div class="chat-bubble" id="bubble1"></div>
-    <div class="chat-bubble" id="bubble2"></div>
-    <div class="chat-bubble" id="bubble3"></div>
-    <div class="typing-indicator" id="typing1"></div>
-    <div class="typing-indicator" id="typing2"></div>
-
-    <!-- Main Content -->
+  <div class="wrapper">
     <div class="container">
-        <h1 class="animate-text">Welcome to Chat - App</h1>
-        <p class="animate-text typing">Connect instantly. Choose your login.<span class="cursor" aria-hidden="true">|</span></p>
-        <div class="button-group">
-            <button class="login-btn animate-btn" aria-label="Log in as Administrator" data-original-text="Admin Login" onclick="redirectTo('admin-login.php')">Admin Login</button>
-            <button class="login-btn animate-btn" aria-label="Log in as User" data-original-text="User Login" onclick="redirectTo('login.php')">User Login</button>
+      <!-- Left Section (Sidebar/Footer) -->
+      <section class="left-section">
+        <div class="left-content">
+          <a href="#" class="menu-toggle"><i class="fas fa-bars"></i></a>
+          <ul class="menu-items">
+            <li><a href="#" data-section="users" class="menu-item"><i class="fas fa-comment"></i><span>Chats</span></a></li>
+            <li><a href="create-group.php" class="menu-item"><i class="fas fa-users"></i><span>Create Groups</span></a></li>
+            <li><a href="#" data-section="requests" class="menu-item"><i class="fas fa-user-plus"></i><span>Chat Requests</span></a></li>
+            <li><a href="contact-list.php" class="menu-item"><i class="fas fa-address-book"></i><span>Contacts</span></a></li>
+          </ul>
+          <ul class="menu-items">
+            <li><a href="#" data-page="settings" class="menu-item"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+          </ul>
         </div>
-    </div>
+      </section>
 
-    <script>
-        // Redirect with validation
-        async function redirectTo(url) {
-            try {
-                const response = await fetch(url, { method: 'HEAD' });
-                if (response.ok) {
-                    window.location.href = url;
-                } else {
-                    alert('Page not found. Please try again later.');
+      <!-- Chat List (Sidebar) -->
+      <section class="chat-list">
+        <header>
+          <h1>Chats</h1>
+        </header>
+        <div class="search">
+          <input type="text" placeholder="Enter name to search...">
+          <button><i class="fas fa-search"></i></button>
+        </div>
+        <div class="toggle-buttons">
+          <button id="show-users" class="toggle-btn active">Users</button>
+          <button id="show-groups" class="toggle-btn">Groups</button>
+        </div>
+        <div class="users-list active" id="users-list">
+          <?php
+          include_once "../php/config.php";
+          $unique_id = mysqli_real_escape_string($conn, $_SESSION['unique_id']);
+          $sql = mysqli_query($conn, "SELECT u.* FROM users u WHERE u.unique_id != '$unique_id'");
+          if (mysqli_num_rows($sql) > 0) {
+            while ($row = mysqli_fetch_assoc($sql)) {
+              $last_msg_query = mysqli_query($conn, 
+                "SELECT msg, created_at 
+                 FROM messages 
+                 WHERE (outgoing_msg_id = '{$row['unique_id']}' AND incoming_msg_id = '$unique_id') 
+                 OR (outgoing_msg_id = '$unique_id' AND incoming_msg_id = '{$row['unique_id']}') 
+                 ORDER BY created_at DESC LIMIT 1"
+              );
+              $last_msg = "No messages yet.";
+              $msg_time = "";
+              if (mysqli_num_rows($last_msg_query) > 0) {
+                $msg_row = mysqli_fetch_assoc($last_msg_query);
+                $last_msg = $msg_row['msg'] ?? "Attachment";
+                $msg_time = date("h:i A", strtotime($msg_row['created_at']));
+                $extension = pathinfo($last_msg, PATHINFO_EXTENSION) ?? '';
+                if ($extension) {
+                  $last_msg = "Attachment (" . strtoupper($extension) . ")";
                 }
-            } catch (error) {
-                console.error('Redirect error:', error);
-                alert('Unable to connect. Please check your network.');
+                $last_msg = strlen($last_msg) > 20 ? substr($last_msg, 0, 20) . "..." : $last_msg;
+              }
+              echo '<a href="?user_id=' . $row['unique_id'] . '" class="user-item">';
+              echo '<div class="content">';
+              echo '<img src="../php/images/' . ($row['img'] ? $row['img'] : 'default.jpg') . '" alt="">';
+              echo '<div class="details">';
+              echo '<span>' . htmlspecialchars($row['fname'] . " " . $row['lname']) . '</span>';
+              echo '<p><span class="last-message">' . htmlspecialchars($last_msg) . '</span> · <span class="timestamp">' . $msg_time . '</span></p>';
+              echo '</div>';
+              echo '</div>';
+              echo '</a>';
             }
-        }
+          } else {
+            echo '<p>No users found.</p>';
+          }
+          ?>
+        </div>
+        <div class="group-list" id="group-list">
+          <?php
+          $group_query = mysqli_query($conn, 
+            "SELECT g.group_id, g.group_name 
+             FROM groups g 
+             JOIN group_members gm ON g.group_id = gm.group_id 
+             WHERE gm.unique_id = '$unique_id'");
+          if (mysqli_num_rows($group_query) > 0) {
+            while ($group = mysqli_fetch_assoc($group_query)) {
+              echo '<div class="group-item">';
+              echo '<a href="?group_id=' . $group['group_id'] . '" class="chat-link"><i class="fas fa-users"></i> ' . htmlspecialchars($group['group_name']) . '</a>';
+              echo '</div>';
+            }
+          } else {
+            echo "<p>No groups yet.</p>";
+          }
+          ?>
+        </div>
+        <div class="requests-list" id="requests-list"></div>
+      </section>
 
-        // Check GSAP and TextPlugin loading
-        if (typeof gsap === 'undefined') {
-            console.error('GSAP not loaded. Check CDN or include GSAP locally.');
-            document.querySelectorAll('.animate-text, .animate-btn').forEach(el => {
-                el.style.opacity = 1;
-            });
-        } else if (typeof gsap.plugins.text === 'undefined') {
-            console.error('GSAP TextPlugin not loaded. Falling back to static text.');
-            document.querySelector('.typing').innerHTML = 'Connect instantly. Choose your login.<span class="cursor" aria-hidden="true">|</span>';
+      <!-- Main Content -->
+      <div class="main-content">
+        <div id="home" class="page active">
+          <h1>Home Page</h1>
+          <p>Select a user to start chatting (demo):</p>
+          <ul class="user-list">
+            <li data-user="user1">User 1</li>
+            <li data-user="user2">User 2</li>
+            <li data-user="user3">User 3</li>
+          </ul>
+        </div>
+        <div id="settings" class="page">
+          <h1>Settings Page</h1>
+          <p>Adjust your settings here.</p>
+        </div>
+      </div>
+
+      <!-- Chat Area -->
+      <section class="chat-area">
+        <?php
+        if (isset($_GET['user_id'])) {
+          $user_id = mysqli_real_escape_string($conn, $_GET['user_id']);
+          $sql = mysqli_query($conn, "SELECT * FROM users WHERE unique_id = '{$user_id}'");
+          if (mysqli_num_rows($sql) > 0) {
+            $row = mysqli_fetch_assoc($sql);
+        ?>
+        <header>
+          <a href="javascript:void(0)" class="back-icon"><i class="fas fa-arrow-left"></i></a>
+          <img src="../php/images/<?php echo $row['img'] ?>" alt="">
+          <div class="details">
+            <span><?php echo $row['fname'] . " " . $row['lname'] ?></span>
+            <p><?php echo $row['status'] ?></p>
+          </div>
+        </header>
+        <div class="chat-box"></div>
+        <form action="../php/insert-chat.php" method="POST" enctype="multipart/form-data" class="typing-area">
+          <input type="file" name="file" id="fileInput" class="file-input">
+          <label for="fileInput" class="insert-button"><i class="fas fa-paperclip"></i></label>
+          <input type="text" name="outgoing_id" value="<?php echo $_SESSION['unique_id']; ?>" hidden>
+          <input type="text" name="incoming_id" value="<?php echo $user_id; ?>" hidden>
+          <input type="text" name="message" class="input-field" placeholder="Type a message here...">
+          <button><i class="fab fa-telegram-plane"></i></button>
+        </form>
+        <script src="js/chat.js"></script>
+        <?php
+          }
+        } elseif (isset($_GET['group_id'])) {
+          $group_id = mysqli_real_escape_string($conn, $_GET['group_id']);
+          $sql = mysqli_query($conn, "SELECT * FROM groups WHERE group_id = '{$group_id}'");
+          if ($sql && mysqli_num_rows($sql) > 0) {
+            $group = mysqli_fetch_assoc($sql);
+          } else {
+            $group = ['group_name' => 'Unknown Group'];
+          }
+        ?>
+        <header>
+          <a href="javascript:void(0)" class="back-icon"><i class="fas fa-arrow-left"></i></a>
+          <img src="<?php echo !empty($group['group_image']) ? '../php/images/' . $group['group_image'] : '../php/images/1749820324penguin.jpg'; ?>" alt="Group Image">
+          <div class="details">
+            <span><?php echo $group['group_name']; ?></span>
+            <?php
+            $creator_check = mysqli_query($conn, "SELECT * FROM groups WHERE group_id = '$group_id' AND created_by = '{$_SESSION['unique_id']}'");
+            if (mysqli_num_rows($creator_check) > 0) {
+              echo '<a href="edit-group.php?group_id=' . $group_id . '" class="edit-group-btn">Edit Group</a>';
+            }
+            ?>
+            <p>Group Chat</p>
+          </div>
+        </header>
+        <div class="chat-box"></div>
+        <form action="../php/insert-group-chat.php" method="POST" class="typing-area" autocomplete="off" enctype="multipart/form-data">
+          <input type="file" name="file" id="fileInput" class="file-input" accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx" hidden>
+          <label for="fileInput" class="insert-button"><i class="fas fa-paperclip"></i></label>
+          <input type="text" name="group_id" value="<?php echo $group_id; ?>" hidden>
+          <input type="text" name="sender_id" value="<?php echo $_SESSION['unique_id']; ?>" hidden>
+          <input type="text" name="message" class="input-field" placeholder="Type a message here...">
+          <button><i class="fab fa-telegram-plane"></i></button>
+        </form>
+        <script src="js/group-chat.js"></script>
+        <?php
         } else {
-            console.log('GSAP and TextPlugin loaded successfully.');
+        ?>
+        <div class="welcome-message">
+          <p>Select a user or group to start chatting</p>
+        </div>
+        <?php
+        }
+        ?>
+      </section>
+    </div>
+  </div>
 
-            // Animation Configuration
-            const animationConfig = {
-                text: { duration: 1.2, y: 60, ease: "power4.out", stagger: 0.3 },
-                button: { duration: 1.2, scale: 0.7, ease: "elastic.out(1, 0.4)", stagger: 0.4, delay: 0.8 },
-                wave: { scale: 1.3, opacity: 0.2, duration: 3.5, ease: "sine.inOut" },
-                circle: { baseDuration: 6, stagger: 2, delay: 0.5, ease: "sine.inOut" },
-                particle: { baseDuration: 4, stagger: 1.5, delay: 0.4, ease: "sine.inOut" },
-                bubble: { duration: 5, stagger: 1.5, delay: 0.8, ease: "linear" },
-                typing: { duration: 4, stagger: 2, delay: 1.2, ease: "linear" }
-            };
+  <script src="js/users.js"></script>
 
-            // Text Animation
-            gsap.from(".animate-text", animationConfig.text);
+  <script>
+    // Demo chat data for main-content user list
+    const demoChats = {
+      user1: [
+        { sender: 'User 1', text: 'Hey, how are you?' },
+        { sender: 'You', text: 'I’m good, thanks!' }
+      ],
+      user2: [
+        { sender: 'User 2', text: 'Got any plans today?' },
+        { sender: 'You', text: 'Just chilling!' }
+      ],
+      user3: [
+        { sender: 'User 3', text: 'Nice app!' },
+        { sender: 'You', text: 'Glad you like it!' }
+      ]
+    };
 
-            // Typing Effect with Cursor
-            const subtitle = document.querySelector('.typing');
-            const text = subtitle.textContent;
-            subtitle.textContent = '';
-            gsap.to(subtitle, {
-                duration: 2.5,
-                text: text,
-                ease: "none",
-                delay: 1.2,
-                onComplete: () => {
-                    subtitle.innerHTML = text + '<span class="cursor" aria-hidden="true">|</span>';
+    document.addEventListener('DOMContentLoaded', function() {
+      const leftSection = document.querySelector('.left-section');
+      const menuToggle = document.querySelector('.menu-toggle');
+      const mainContent = document.querySelector('.main-content');
+      const chatArea = document.querySelector('.chat-area');
+      const chatList = document.querySelector('.chat-list');
+      const backIcons = document.querySelectorAll('.back-icon');
+      const userItems = document.querySelectorAll('.user-list li');
+      const menuItems = document.querySelectorAll('.menu-item');
+      const usersList = document.querySelector('.users-list');
+      const groupList = document.querySelector('.group-list');
+      const requestsList = document.querySelector('.requests-list');
+
+      // Update layout based on screen size and state
+      function updateLayout() {
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        if (isMobile) {
+          leftSection.style.display = 'flex'; // Always-visible footer
+          if (chatArea.classList.contains('active') || window.location.search.includes('user_id') || window.location.search.includes('group_id')) {
+            mainContent.style.display = 'none';
+            chatList.style.display = 'none';
+            chatArea.style.display = 'flex';
+          } else {
+            mainContent.style.display = 'block';
+            chatList.style.display = 'block';
+            chatArea.style.display = 'none';
+          }
+        } else {
+          leftSection.style.display = 'block';
+          mainContent.style.display = 'block';
+          chatList.style.display = 'flex';
+          chatArea.style.display = 'flex';
+        }
+      }
+
+      // Sidebar toggle
+      menuToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        leftSection.classList.toggle('expanded');
+        updateLayout();
+      });
+
+      // Handle user/group clicks in chat-list
+      chatList.addEventListener('click', function(e) {
+        const link = e.target.closest('.chat-link, .user-item');
+        if (link) {
+          e.preventDefault();
+          const isMobile = window.matchMedia('(max-width: 768px)').matches;
+          if (isMobile) {
+            chatArea.classList.add('active');
+            mainContent.style.display = 'none';
+            chatList.style.display = 'none';
+            chatArea.style.display = 'flex';
+          }
+          window.location.href = link.href;
+        }
+      });
+
+      // Handle back button
+      backIcons.forEach(icon => {
+        icon.addEventListener('click', function(e) {
+          e.preventDefault();
+          const isMobile = window.matchMedia('(max-width: 768px)').matches;
+          if (isMobile) {
+            chatArea.classList.remove('active');
+            chatArea.style.display = 'none';
+            mainContent.style.display = 'block';
+            chatList.style.display = 'block';
+          }
+          window.location.href = 'users.php';
+        });
+      });
+
+      // Toggle users/groups
+      document.getElementById('show-users').addEventListener('click', function() {
+        usersList.classList.add('active');
+        groupList.classList.remove('active');
+        requestsList.classList.remove('active');
+        this.classList.add('active');
+        document.getElementById('show-groups').classList.remove('active');
+        document.querySelector('.chat-list header h1').textContent = 'Chats';
+      });
+
+      document.getElementById('show-groups').addEventListener('click', function() {
+        usersList.classList.remove('active');
+        groupList.classList.add('active');
+        requestsList.classList.remove('active');
+        this.classList.add('active');
+        document.getElementById('show-users').classList.remove('active');
+        document.querySelector('.chat-list header h1').textContent = 'Groups';
+      });
+
+      // Menu item handling
+      menuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.preventDefault();
+          const section = this.getAttribute('data-section');
+          const page = this.getAttribute('data-page');
+          const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+          menuItems.forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+
+          if (section === 'users') {
+            usersList.classList.add('active');
+            groupList.classList.remove('active');
+            requestsList.classList.remove('active');
+            document.getElementById('show-users').classList.add('active');
+            document.getElementById('show-groups').classList.remove('active');
+            document.querySelector('.chat-list header h1').textContent = 'Chats';
+            if (!isMobile) {
+              leftSection.classList.add('expanded');
+            }
+          } else if (section === 'requests') {
+            usersList.classList.remove('active');
+            groupList.classList.remove('active');
+            requestsList.classList.add('active');
+            document.getElementById('show-users').classList.remove('active');
+            document.getElementById('show-groups').classList.remove('active');
+            document.querySelector('.chat-list header h1').textContent = 'Chat Requests';
+            if (!isMobile) {
+              leftSection.classList.add('expanded');
+            }
+            loadChatRequests();
+          } else if (page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(page).classList.add('active');
+            if (!isMobile) {
+              leftSection.classList.add('expanded');
+            }
+            updateLayout();
+          } else {
+            window.location.href = this.href; // External links (e.g., create-group.php)
+          }
+        });
+      });
+
+      // Load chat requests via AJAX
+      function loadChatRequests() {
+    const requestsList = document.getElementById('requests-list');
+    requestsList.innerHTML = '<p>Loading...</p>'; // Optional loading indicator
+
+    fetch('chat-requests.php', {
+        method: 'GET',
+        headers: { 'Accept': 'text/html' }
+    })
+    .then(res => {
+        if (!res.ok) {
+            throw new Error('Failed to load chat requests page');
+        }
+        return res.text();
+    })
+    .then(html => {
+        // Create a temporary container to parse the HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const chatBox = doc.querySelector('#requests-container');
+        
+        if (chatBox) {
+            // Insert the chat-box content into requests-list
+            requestsList.innerHTML = '';
+            requestsList.appendChild(chatBox);
+            
+            // Reattach event listeners for accept buttons
+            chatBox.addEventListener('click', function(e) {
+                if (e.target.matches('.btn-approve') || e.target.matches('.btn-reject')) {
+                    const card = e.target.closest('.request-card');
+                    const senderId = card.dataset.senderId;
+                    const action = e.target.dataset.action;
+
+                    e.target.style.opacity = '0.7';
+                    setTimeout(() => { e.target.style.opacity = '1'; }, 200);
+
+                    fetch('../php/approve-request.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `sender_id=${encodeURIComponent(senderId)}&action=${encodeURIComponent(action)}`
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            card.style.opacity = '0';
+                            setTimeout(() => { 
+                                card.remove(); 
+                                if (!chatBox.querySelector('.request-card')) {
+                                    chatBox.innerHTML = `
+                                        <div class="no-requests">
+                                            <i class="fas fa-info-circle"></i>
+                                            <p>No chat requests at the moment.</p>
+                                        </div>`;
+                                }
+                            }, 300);
+                        } else {
+                            alert('Failed to process request: ' + data.status);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
                 }
             });
-
-            // Button Animations
-            gsap.from(".animate-btn", animationConfig.button);
-
-            // Button Hover, Click, and Keyboard Effects
-            document.querySelectorAll(".login-btn").forEach(button => {
-                gsap.set(button, { transformPerspective: 500 });
-                button.setAttribute("tabindex", "0");
-
-                button.addEventListener("mouseenter", () => {
-                    gsap.to(button, {
-                        scale: 1.15,
-                        rotateX: 15,
-                        boxShadow: "0 10px 25px rgba(0, 0, 0, 0.4)",
-                        duration: 0.4,
-                        ease: "power2.out"
-                    });
-                });
-                button.addEventListener("mouseleave", () => {
-                    gsap.to(button, {
-                        scale: 1,
-                        rotateX: 0,
-                        boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
-                        duration: 0.4,
-                        ease: "power2.out"
-                    });
-                });
-                button.addEventListener("click", () => {
-                    button.textContent = "Loading...";
-                    gsap.to(button, {
-                        scale: 0.9,
-                        rotateY: 10,
-                        duration: 0.2,
-                        ease: "power1.in",
-                        yoyo: true,
-                        repeat: 1,
-                        onComplete: () => {
-                            button.textContent = button.dataset.originalText;
-                            const url = button.getAttribute("onclick").match(/'([^']+)'/)[1];
-                            redirectTo(url);
-                        }
-                    });
-                });
-                button.addEventListener("keydown", (e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        button.click();
-                    }
-                });
-            });
-
-            // Background Gradient Animation
-            gsap.to("body", {
-                background: "linear-gradient(135deg, #2c3e50, #e84393)",
-                duration: 6,
-                repeat: -1,
-                yoyo: true,
-                ease: "sine.inOut"
-            });
-
-            // Mockup Animation
-            gsap.to(".mockup", {
-                scale: 1.1,
-                opacity: 0.15,
-                duration: 5,
-                repeat: -1,
-                yoyo: true,
-                ease: "sine.inOut"
-            });
-
-            // Wave Animation
-            gsap.to(".wave", animationConfig.wave);
-
-            // Big Circle Animations
-            const circles = ["#circle1", "#circle2", "#circle3"];
-            circles.forEach((circle, index) => {
-                gsap.to(circle, {
-                    x: () => Math.random() * window.innerWidth,
-                    y: () => Math.random() * window.innerHeight,
-                    opacity: 0.25,
-                    duration: animationConfig.circle.baseDuration + index * animationConfig.circle.stagger,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: animationConfig.circle.ease,
-                    delay: index * animationConfig.circle.delay,
-                    onRepeat: () => {
-                        gsap.set(circle, {
-                            x: Math.random() * window.innerWidth,
-                            y: Math.random() * window.innerHeight
-                        });
-                    }
-                });
-            });
-
-            // Particle Animations
-            const particles = ["#particle1", "#particle2", "#particle3", "#particle4", "#particle5"];
-            particles.forEach((particle, index) => {
-                gsap.to(particle, {
-                    x: () => Math.random() * window.innerWidth,
-                    y: () => Math.random() * window.innerHeight,
-                    duration: animationConfig.particle.baseDuration + index * animationConfig.particle.stagger,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: animationConfig.particle.ease,
-                    delay: index * animationConfig.particle.delay,
-                    onRepeat: () => {
-                        gsap.set(particle, {
-                            x: Math.random() * window.innerWidth,
-                            y: Math.random() * window.innerHeight
-                        });
-                    }
-                });
-            });
-
-            // Chat Bubble Parallax Animations
-            const bubbles = ["#bubble1", "#bubble2", "#bubble3"];
-            bubbles.forEach((bubble, index) => {
-                gsap.fromTo(bubble, {
-                    x: () => Math.random() * window.innerWidth,
-                    y: window.innerHeight,
-                    opacity: 0
-                }, {
-                    y: -window.innerHeight,
-                    x: () => Math.random() * window.innerWidth + (index % 2 ? 50 : -50),
-                    opacity: 0.7,
-                    duration: animationConfig.bubble.duration + index * animationConfig.bubble.stagger,
-                    repeat: -1,
-                    ease: animationConfig.bubble.ease,
-                    delay: index * animationConfig.bubble.delay,
-                    onRepeat: () => {
-                        gsap.set(bubble, {
-                            x: Math.random() * window.innerWidth,
-                            y: window.innerHeight,
-                            opacity: 0
-                        });
-                    }
-                });
-            });
-
-            // Typing Indicator Animations
-            const typingIndicators = ["#typing1", "#typing2"];
-            typingIndicators.forEach((indicator, index) => {
-                gsap.fromTo(indicator, {
-                    x: () => Math.random() * window.innerWidth,
-                    y: window.innerHeight,
-                    opacity: 0
-                }, {
-                    y: -window.innerHeight,
-                    opacity: 0.5,
-                    duration: animationConfig.typing.duration + index * animationConfig.typing.stagger,
-                    repeat: -1,
-                    ease: animationConfig.typing.ease,
-                    delay: index * animationConfig.typing.delay,
-                    onRepeat: () => {
-                        gsap.set(indicator, {
-                            x: Math.random() * window.innerWidth,
-                            y: window.innerHeight,
-                            opacity: 0
-                        });
-                    }
-                });
-            });
+        } else {
+            requestsList.innerHTML = '<p>Error: Could not load requests.</p>';
         }
-    </script>
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        requestsList.innerHTML = '<p>Error loading requests.</p>';
+    });
+}
+
+      // Handle chat request actions
+      requestsList.addEventListener('click', function(e) {
+        if (e.target.matches('.btn-approve')) {
+          const card = e.target.closest('.request-card');
+          const senderId = card.dataset.senderId;
+          const action = e.target.dataset.action;
+
+          e.target.style.opacity = '0.7';
+          setTimeout(() => { e.target.style.opacity = '1'; }, 200);
+
+          fetch('../php/approve-request.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `sender_id=${encodeURIComponent(senderId)}&action=${encodeURIComponent(action)}`
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === 'success') {
+              card.style.opacity = '0';
+              setTimeout(() => { 
+                card.remove(); 
+                if (!requestsList.querySelector('.request-card')) {
+                  requestsList.innerHTML = `
+                    <div class="no-requests">
+                      <i class="fas fa-info-circle"></i>
+                      <p>No chat requests at the moment.</p>
+                    </div>`;
+                }
+              }, 300);
+            } else {
+              alert('Failed to process request: ' + data.status);
+            }
+          })
+          .catch(error => console.error('Error:', error));
+        }
+      });
+
+      // Demo user selection (main-content)
+      userItems.forEach(item => {
+        item.addEventListener('click', () => {
+          const userId = item.getAttribute('data-user');
+          loadDemoChat(userId);
+          userItems.forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+          const isMobile = window.matchMedia('(max-width: 768px)').matches;
+          if (isMobile) {
+            chatArea.classList.add('active');
+            mainContent.style.display = 'none';
+            chatList.style.display = 'none';
+            chatArea.style.display = 'flex';
+          }
+        });
+      });
+
+      // Load demo chat for main-content users
+      function loadDemoChat(userId) {
+        const messagesDiv = document.querySelector('.chat-box');
+        messagesDiv.innerHTML = '';
+        const messages = demoChats[userId] || [];
+        messages.forEach(msg => {
+          const messageElement = document.createElement('div');
+          messageElement.className = msg.sender === 'You' ? 'chat outgoing' : 'chat incoming';
+          messageElement.innerHTML = `<div class="details"><p>${msg.text}</p></div>`;
+          messagesDiv.appendChild(messageElement);
+        });
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }
+
+      // Fix profile images
+      function fixUsersListProfileImages() {
+        const userImages = document.querySelectorAll('.users-list img:not([data-fixed]), .requests-list img:not([data-fixed])');
+        userImages.forEach(image => {
+          image.setAttribute('data-fixed', 'true');
+          if (image.src.includes('/images/')) {
+            const filename = image.src.split('/images/')[1] || 'default.jpg';
+            image.src = '../php/images/' + filename;
+          }
+          image.onerror = function() {
+            this.src = '../php/images/default.jpg';
+          };
+          if (!image.src || image.src.includes('undefined') || image.src === window.location.href || image.src.endsWith('/images/')) {
+            image.src = '../php/images/default.jpg';
+          }
+        });
+      }
+
+      fixUsersListProfileImages();
+      const observer = new MutationObserver(() => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(fixUsersListProfileImages, 100);
+      });
+      let debounceTimeout;
+      observer.observe(usersList, { childList: true, subtree: true });
+      observer.observe(requestsList, { childList: true, subtree: true });
+
+      // Initial layout setup
+      updateLayout();
+
+      // Update layout on resize
+      window.addEventListener('resize', updateLayout);
+    });
+  </script>
 </body>
 </html>
