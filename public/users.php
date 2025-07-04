@@ -35,14 +35,16 @@ if (!isset($_SESSION['unique_id'])) {
       position: fixed;
       top: 0;
       left: 0;
+      boredrer-right: 1px solid red;
       height: 100vh;
       transform: translateX(-25vw); /* Show 10vw by default */
       transition: transform 0.3s ease;
       z-index: 1000;
+      border-right: 1px solid red;
     }
 
     .left-section.expanded {
-      transform: translateX(0); /* Show full 30vw */
+      transform: translateX(-15vw); /* Show full 30vw */
     }
 
     .left-section .menu-toggle {
@@ -63,6 +65,7 @@ if (!isset($_SESSION['unique_id'])) {
     }
 
     .menu-items {
+      text-align: right;
       list-style: none;
       padding: 0;
       margin: 0;
@@ -70,9 +73,11 @@ if (!isset($_SESSION['unique_id'])) {
 
     .menu-items li {
       margin: 10px 0;
+      text-align: right;
     }
 
     .menu-item {
+      text-align: right;
       color: black;
       text-decoration: none;
       font-size: 18px;
@@ -83,21 +88,23 @@ if (!isset($_SESSION['unique_id'])) {
     }
 
     .menu-item i {
+      text-align: right !important;
       margin-right: 10px;
       font-size: 20px;
     }
 
     .menu-item span {
+      
       display: none; /* Hide text by default */
     }
 
     .left-section.expanded .menu-item span {
-      display: inline; /* Show text when expanded */
+      display: none; /* Show text when expanded */
     }
 
     .menu-item:hover,
     .menu-item.active {
-      background-color: #34495e;
+      background-color:rgba(203, 203, 203, 0.68);
     }
 
     /* Chat List (Sidebar) */
@@ -853,7 +860,8 @@ if (!isset($_SESSION['unique_id'])) {
 
       .left-section .menu-items {
         display: flex;
-        justify-content: space-between; /* Changed to space-between for even spacing */
+      
+        /* justify-content: space-between; Changed to space-between for even spacing */
         width: 100%;
         flex-wrap: nowrap; /* Prevent wrapping */
       }

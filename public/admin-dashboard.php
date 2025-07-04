@@ -32,10 +32,12 @@ if ($result) $stats['online_users'] = $result->fetch_assoc()['count'];
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
     body {
-        background: url('./Images/dashboard.jpg') no-repeat center center fixed;
+        /* background: url('./Images/dashboard.jpg') no-repeat center center fixed; */
         background-size: cover;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         margin: 0;
+        background-image: linear-gradient(to right, rgba(42, 231, 252, 0.27), rgba(22, 185, 255, 0.44)););
+        background-size: cover;
     }
 
     .dashboard-container {
@@ -136,7 +138,7 @@ if ($result) $stats['online_users'] = $result->fetch_assoc()['count'];
     <!-- Stats Cards -->
     <div class="row mb-4">
         <div class="col-md-3 mb-4">
-            <div class="card stat-card bg-warning text-white">
+            <div class="card stat-card bg-info text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -164,7 +166,7 @@ if ($result) $stats['online_users'] = $result->fetch_assoc()['count'];
         </div>
 
         <div class="col-md-3 mb-4">
-            <div class="card stat-card bg-warning text-white">
+            <div class="card stat-card bg-info text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
