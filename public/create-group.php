@@ -99,14 +99,14 @@ if ($is_blocked == 1) {
             cursor: pointer;
         }
 
-        .members-list {
+        /* .members-list {
             max-height: 200px;
             overflow-y: auto;
             padding: 10px;
             background: #f9f9f9;
             border: 1px solid #e0f2f1;
             border-radius: 10px;
-        }
+        } */
 
         .members-list label {
             display: flex;

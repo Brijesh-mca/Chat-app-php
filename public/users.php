@@ -12,6 +12,10 @@ if (!isset($_SESSION['unique_id'])) {
   <title>Chat Application</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -27,13 +31,12 @@ if (!isset($_SESSION['unique_id'])) {
       background-color: #2c3e50;
       color: white;
       padding: 20px;
-      box-sizing: border-box;
       overflow-y: auto;
       position: fixed;
       top: 0;
       left: 0;
       height: 100vh;
-      transform: translateX(-20vw); /* Show 10vw by default */
+      transform: translateX(-25vw); /* Show 10vw by default */
       transition: transform 0.3s ease;
       z-index: 1000;
     }
@@ -45,6 +48,7 @@ if (!isset($_SESSION['unique_id'])) {
     .left-section .menu-toggle {
       font-size: 20px;
       color: white;
+      text-align: right;
       text-decoration: none;
       margin-bottom: 10px;
       display: block;
@@ -106,7 +110,7 @@ if (!isset($_SESSION['unique_id'])) {
       height: 100vh;
       position: fixed;
       top: 0;
-      left: 10vw;
+      left: 5vw;
       z-index: 1;
     }
 
@@ -117,6 +121,7 @@ if (!isset($_SESSION['unique_id'])) {
       color: white;
       display: flex;
       align-items: center;
+      flex-shrink: 0;
     }
 
     .chat-list header h1 {
@@ -128,6 +133,7 @@ if (!isset($_SESSION['unique_id'])) {
       padding: 10px 15px;
       background: #fff;
       display: flex;
+      flex-shrink: 0;
     }
 
     .chat-list .search input {
@@ -154,6 +160,7 @@ if (!isset($_SESSION['unique_id'])) {
       padding: 10px 15px;
       background: #fff;
       border-bottom: 1px solid #e0e0e0;
+      flex-shrink: 0;
     }
 
     .chat-list .toggle-btn {
@@ -173,22 +180,24 @@ if (!isset($_SESSION['unique_id'])) {
 
     .chat-list .users-list,
     .chat-list .group-list,
-    .chat-list .requests-list {
+    .chat-list .requests-list,
+    .chat-list .contacts-list,
+    .chat-list .create-group {
       flex-grow: 1;
       overflow-y: auto;
       padding: 15px;
       background: #f4f4f4;
-    }
-
-    .chat-list .users-list,
-    .chat-list .group-list,
-    .chat-list .requests-list {
       display: none;
+      position: relative;
+      -webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
+      max-height: 100%;
     }
 
     .chat-list .users-list.active,
     .chat-list .group-list.active,
-    .chat-list .requests-list.active {
+    .chat-list .requests-list.active,
+    .chat-list .contacts-list.active,
+    .chat-list .create-group.active {
       display: block;
     }
 
@@ -323,7 +332,8 @@ if (!isset($_SESSION['unique_id'])) {
       gap: 10px;
     }
 
-    .chat-list .requests-list .btn-approve {
+    .chat-list .requests-list .btn-approve,
+    .chat-list .requests-list .btn-reject {
       padding: 8px 16px;
       border: none;
       border-radius: 5px;
@@ -332,9 +342,17 @@ if (!isset($_SESSION['unique_id'])) {
       display: flex;
       align-items: center;
       gap: 5px;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .chat-list .requests-list .btn-approve {
       background-color: #28a745;
       color: white;
-      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .chat-list .requests-list .btn-reject {
+      background-color: #dc3545;
+      color: white;
     }
 
     .chat-list .requests-list .btn-approve:hover {
@@ -342,7 +360,13 @@ if (!isset($_SESSION['unique_id'])) {
       transform: scale(1.05);
     }
 
-    .chat-list .requests-list .btn-approve:active {
+    .chat-list .requests-list .btn-reject:hover {
+      background-color: #c82333;
+      transform: scale(1.05);
+    }
+
+    .chat-list .requests-list .btn-approve:active,
+    .chat-list .requests-list .btn-reject:active {
       transform: scale(0.95);
     }
 
@@ -371,7 +395,7 @@ if (!isset($_SESSION['unique_id'])) {
       background-color: #f4f4f4;
       position: fixed;
       top: 0;
-      left: 40vw;
+      left: 35vw;
       height: 100vh;
       z-index: 1;
     }
@@ -408,9 +432,8 @@ if (!isset($_SESSION['unique_id'])) {
 
     /* Chat Area */
     .chat-area {
-      width: calc(100vw - 10vw - 30vw); /* ~60% */
+      width: calc(100vw - 35vw); /* ~65% */
       background: #ecf0f1;
-      padding: 20px;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -428,6 +451,7 @@ if (!isset($_SESSION['unique_id'])) {
       display: flex;
       align-items: center;
       color: white;
+      flex-shrink: 0;
     }
 
     .chat-area .back-icon {
@@ -457,6 +481,8 @@ if (!isset($_SESSION['unique_id'])) {
 
     .chat-area .edit-group-btn {
       margin-left: 10px;
+      position: fixed;
+      right: 20px !important;
       font-size: 14px;
       color: white;
       text-decoration: none;
@@ -470,6 +496,7 @@ if (!isset($_SESSION['unique_id'])) {
       padding: 20px;
       display: flex;
       flex-direction: column;
+      -webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
     }
 
     .chat {
@@ -514,6 +541,7 @@ if (!isset($_SESSION['unique_id'])) {
       padding: 10px;
       background: #2c3e50;
       border-top: 1px solid #ddd;
+      flex-shrink: 0;
     }
 
     .typing-area .file-input {
@@ -538,7 +566,7 @@ if (!isset($_SESSION['unique_id'])) {
     .typing-area button {
       background: #3498db;
       color: white;
-      border: white;
+      border: none;
       padding: 8px 12px;
       border-radius: 20px;
       cursor: pointer;
@@ -556,102 +584,388 @@ if (!isset($_SESSION['unique_id'])) {
       background-size: cover;
     }
 
+    /* Contacts List */
+    .contacts-list {
+      display: none;
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 15px;
+      background: #f4f4f4;
+      position: relative;
+      -webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
+    }
+
+    .contacts-list.active {
+      display: block;
+    }
+
+    .contacts-list .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 10px;
+      text-decoration: none;
+      color: #000;
+      background: white;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .contacts-list .contact-item:hover {
+      background: #e0e0e0;
+    }
+
+    .contacts-list .profile-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid black;
+    }
+
+    .contacts-list .contact-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .contacts-list .contact-name {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .contacts-list .contact-status {
+      font-size: 12px;
+      margin: 5px 0;
+    }
+
+    .contacts-list .contact-status.online {
+      color: #28a745;
+    }
+
+    .contacts-list .contact-status.offline {
+      color: #6c757d;
+    }
+
+    .contacts-list hr {
+      border: 0;
+      border-top: 1px solid #ccc;
+      margin: 10px 0;
+    }
+
+    .contacts-list .no-users {
+      text-align: center;
+      color: #666;
+      padding: 20px;
+    }
+
+    /* Create Group Form */
+    .create-group {
+      display: none;
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 20px;
+      background: #fff;
+      position: relative;
+      -webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
+    }
+
+    .create-group.active {
+      display: block;
+    }
+
+    .create-group .form {
+      text-align: center;
+    }
+
+    .create-group .header-animation {
+      font-size: 1.8rem;
+      color: #00695c;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .create-group .field {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .create-group .field label {
+      display: block;
+      color: #26a69a;
+      font-weight: bold;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+    }
+
+    .create-group .field input[type="text"],
+    .create-group .field input[type="file"] {
+      width: 100%;
+      padding: 8px;
+      border: 2px solid #e0f2f1;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .create-group .field input[type="text"]:focus,
+    .create-group .field input[type="file"]:focus {
+      border-color: #00695c;
+      box-shadow: 0 0 5px rgba(0, 105, 92, 0.2);
+    }
+
+    .create-group .field input[type="file"] {
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .create-group .members-list {
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 10px;
+      background: #f9f9f9;
+      border: 1px solid #e0f2f1;
+      border-radius: 10px;
+      -webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
+    }
+
+    .create-group .members-list label {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+      color: #444;
+    }
+
+    .create-group .members-list input[type="checkbox"] {
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    .create-group .field.button input {
+      background: #26a69a;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      padding: 10px;
+      width: 100%;
+      border-radius: 20px;
+    }
+
+    .create-group .field.button input:hover {
+      background: #00695c;
+    }
+
+    .create-group #memberCount {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #333;
+    }
+
+    .create-group #memberCountWarning {
+      color: red;
+      font-size: 0.85rem;
+    }
+
+    /* Modal Styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+      -webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
+    }
+
+    .modal-content .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
     /* Mobile Footer Styles */
     @media (max-width: 768px) {
-      .left-section {
+      body {
+        display: block; /* Remove flex to stack sections vertically */
+      }
+
+      .wrapper, .container {
         width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .left-section {
+        width: 100vw;
+        max-width: 100vw;
         height: 60px;
         top: auto;
         bottom: 0;
         transform: none;
-        display: flex; /* Always visible */
+        display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: space-around;
-        padding: 10px;
+        padding:; /* Reduced padding for tighter fit */
         z-index: 1000;
       }
+
       .left-section .menu-toggle {
         display: none;
       }
+
       .left-section .menu-items {
         display: flex;
-        justify-content: space-around;
+        justify-content: space-between; /* Changed to space-between for even spacing */
         width: 100%;
+        flex-wrap: nowrap; /* Prevent wrapping */
       }
+
       .left-section .menu-items li {
         margin: 0;
+        flex: 1; /* Distribute space equally */
+        text-align: center;
       }
+
       .left-section .menu-item {
         padding: 5px;
+        justify-content: center; /* Center icons */
       }
+
+      .left-section .menu-item i {
+        font-size: 18px; /* Slightly smaller icons for mobile */
+        margin-right: 0; /* Remove margin for tighter fit */
+      }
+
       .left-section .menu-item span {
         display: none;
       }
+
       .chat-list {
         margin-left: 0;
-        width: 100%;
+        width: 100vw;
+        max-width: 100vw;
         position: static;
         height: calc(100vh - 60px);
         display: block;
       }
+
       .main-content {
         margin-left: 0;
-        width: 100%;
+        width: 100vw;
+        max-width: 100vw;
         position: static;
         height: calc(100vh - 60px);
         display: block;
       }
+
       .chat-area {
-        width: 100%;
+        width: 100vw;
+        max-width: 100vw;
         position: static;
-        height: calc(100vh - 60px);
+        height: 100vh; /* Full height when active */
         display: none;
       }
+
       .chat-area.active {
         display: flex;
       }
+
       .chat-list .user-item img,
       .chat-list header img,
-      .chat-list .requests-list .user-info img {
+      .chat-list .requests-list .user-info img,
+      .contacts-list .profile-img {
         width: 35px;
         height: 35px;
       }
+
       .chat-list .details span,
       .chat-area .details span,
-      .chat-list .requests-list .user-name {
+      .chat-list .requests-list .user-name,
+      .contacts-list .contact-name {
         font-size: 14px;
       }
+
       .chat {
         max-width: 80%;
       }
+
       .chat .details p {
         font-size: 15px;
       }
+
       .chat .time {
         font-size: 9px;
       }
+
       .chat-list .requests-list .request-card {
         flex-direction: column;
         align-items: flex-start;
         padding: 12px;
       }
+
       .chat-list .requests-list .user-info {
         margin-bottom: 10px;
       }
+
       .chat-list .requests-list .user-name {
         font-size: 15px;
       }
+
       .chat-list .requests-list .request-text {
         font-size: 13px;
       }
+
       .chat-list .requests-list .request-actions {
         width: 100%;
         justify-content: flex-end;
       }
-      .chat-list .requests-list .btn-approve {
+
+      .chat-list .requests-list .btn-approve,
+      .chat-list .requests-list .btn-reject {
         padding: 6px 12px;
         font-size: 13px;
+      }
+
+      .contacts-list .contact-name {
+        font-size: 14px;
+      }
+
+      .contacts-list .contact-status {
+        font-size: 11px;
+      }
+
+      .create-group {
+        padding: 15px;
+      }
+
+      .create-group .members-list {
+        max-height: 150px;
+      }
+
+      .create-group .field input[type="text"],
+      .create-group .field input[type="file"] {
+        font-size: 0.8rem;
       }
     }
 
@@ -659,217 +973,45 @@ if (!isset($_SESSION['unique_id'])) {
       .chat-list .user-item img,
       .chat-list header img,
       .chat-area img,
-      .chat-list .requests-list .user-info img {
+      .chat-list .requests-list .user-info img,
+      .contacts-list .profile-img {
         width: 30px;
         height: 30px;
       }
+
       .chat-list .details span,
       .chat-area .details span,
-      .chat-list .requests-list .user-name {
+      .chat-list .requests-list .user-name,
+      .contacts-list .contact-name {
         font-size: 13px;
       }
+
       .chat .details p {
         font-size: 14px;
       }
+
       .chat .time {
         font-size: 8px;
       }
+
       .chat-list .requests-list .request-text {
         font-size: 12px;
       }
-      .chat-list .requests-list .btn-approve {
+
+      .chat-list .requests-list .btn-approve,
+      .chat-list .requests-list .btn-reject {
         padding: 5px 10px;
         font-size: 12px;
       }
-    }
-      .contacts-list {
-    display: none;
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 15px;
-    background: #f4f4f4;
-}
-.contacts-list.active {
-    display: block;
-}
-.contacts-list .contact-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 10px;
-    text-decoration: none;
-    color: #000;
-    background: white;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-.contacts-list .contact-item:hover {
-    background: #e0e0e0;
-}
-.contacts-list .profile-img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid black;
-}
-.contacts-list .contact-details {
-    display: flex;
-    flex-direction: column;
-}
-.contacts-list .contact-name {
-    font-weight: bold;
-    font-size: 16px;
-}
-.contacts-list .contact-status {
-    font-size: 12px;
-    margin: 5px 0;
-}
-.contacts-list .contact-status.online {
-    color: #28a745;
-}
-.contacts-list .contact-status.offline {
-    color: #6c757d;
-}
-.contacts-list hr {
-    border: 0;
-    border-top: 1px solid #ccc;
-    margin: 10px 0;
-}
-.contacts-list .no-users {
-    text-align: center;
-    color: #666;
-    padding: 20px;
-}
-@media (max-width: 768px) {
-    .contacts-list .profile-img {
-        width: 35px;
-        height: 35px;
-    }
-    .contacts-list .contact-name {
-        font-size: 14px;
-    }
-    .contacts-list .contact-status {
-        font-size: 11px;
-    }
-}
-@media (max-width: 480px) {
-    .contacts-list .profile-img {
-        width: 30px;
-        height: 30px;
-    }
-    .contacts-list .contact-name {
-        font-size: 13px;
-    }
-    .contacts-list .contact-status {
+
+      .contacts-list .contact-status {
         font-size: 10px;
-    }
-}
+      }
 
-
-
-.create-group {
-    display: none;
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 20px;
-    background: #fff;
-}
-.create-group.active {
-    display: block;
-}
-.create-group .form {
-    text-align: center;
-}
-.create-group .header-animation {
-    font-size: 1.8rem;
-    color: #00695c;
-    margin-bottom: 15px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-.create-group .field {
-    margin-bottom: 15px;
-    text-align: left;
-}
-.create-group .field label {
-    display: block;
-    color: #26a69a;
-    font-weight: bold;
-    margin-bottom: 5px;
-    font-size: 0.9rem;
-}
-.create-group .field input[type="text"],
-.create-group .field input[type="file"] {
-    width: 100%;
-    padding: 8px;
-    border: 2px solid #e0f2f1;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    outline: none;
-}
-.create-group .field input[type="text"]:focus,
-.create-group .field input[type="file"]:focus {
-    border-color: #00695c;
-    box-shadow: 0 0 5px rgba(0, 105, 92, 0.2);
-}
-.create-group .field input[type="file"] {
-    padding: 8px;
-    cursor: pointer;
-}
-.create-group .members-list {
-    max-height: 200px;
-    overflow-y: auto;
-    padding: 10px;
-    background: #f9f9f9;
-    border: 1px solid #e0f2f1;
-    border-radius: 10px;
-}
-.create-group .members-list label {
-    display: flex;
-    align-items: center;
-    margin: 5px 0;
-    color: #444;
-}
-.create-group .members-list input[type="checkbox"] {
-    margin-right: 10px;
-    cursor: pointer;
-}
-.create-group .field.button input {
-    background: #26a69a;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    padding: 10px;
-    width: 100%;
-    border-radius: 20px;
-}
-.create-group .field.button input:hover {
-    background: #00695c;
-}
-.create-group #memberCount {
-    margin-top: 8px;
-    font-size: 0.9rem;
-    color: #333;
-}
-.create-group #memberCountWarning {
-    color: red;
-    font-size: 0.85rem;
-}
-@media (max-width: 400px) {
-    .create-group {
-        padding: 15px;
+      .left-section .menu-item i {
+        font-size: 16px; /* Even smaller icons for very small screens */
+      }
     }
-    .create-group .members-list {
-        max-height: 150px;
-    }
-    .create-group .field input[type="text"],
-    .create-group .field input[type="file"] {
-        font-size: 0.8rem;
-    }
-}
-
   </style>
 </head>
 <body>
@@ -883,10 +1025,12 @@ if (!isset($_SESSION['unique_id'])) {
             <li><a href="#" data-section="users" class="menu-item"><i class="fas fa-comment"></i><span>Chats</span></a></li>
             <li><a href="#" data-section="create-group" class="menu-item"><i class="fas fa-users"></i><span>Create Groups</span></a></li>
             <li><a href="#" data-section="requests" class="menu-item"><i class="fas fa-user-plus"></i><span>Chat Requests</span></a></li>
+           
             <li><a href="#" data-section="contacts" class="menu-item"><i class="fas fa-address-book"></i><span>Contacts</span></a></li>
+            <li><a href="settings.php" class="menu-item"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+
           </ul>
           <ul class="menu-items">
-            <li><a href="#" data-page="settings" class="menu-item"><i class="fas fa-cog"></i><span>Settings</span></a></li>
           </ul>
         </div>
       </section>
@@ -969,7 +1113,9 @@ if (!isset($_SESSION['unique_id'])) {
       </section>
 
       <!-- Main Content -->
-      <div class="main-content">
+      <section class="main-content">
+        <!-- Content dynamically loaded here -->
+      </section>
 
       <!-- Chat Area -->
       <section class="chat-area">
@@ -982,10 +1128,10 @@ if (!isset($_SESSION['unique_id'])) {
         ?>
         <header>
           <a href="javascript:void(0)" class="back-icon"><i class="fas fa-arrow-left"></i></a>
-          <img src="../php/images/<?php echo $row['img'] ?>" alt="">
+          <img src="../php/images/<?php echo $row['img'] ? $row['img'] : 'default.jpg'; ?>" alt="">
           <div class="details">
-            <span><?php echo $row['fname'] . " " . $row['lname'] ?></span>
-            <p><?php echo $row['status'] ?></p>
+            <span><?php echo htmlspecialchars($row['fname'] . " " . $row['lname']); ?></span>
+            <p><?php echo htmlspecialchars($row['status']); ?></p>
           </div>
         </header>
         <div class="chat-box"></div>
@@ -1013,14 +1159,13 @@ if (!isset($_SESSION['unique_id'])) {
           <a href="javascript:void(0)" class="back-icon"><i class="fas fa-arrow-left"></i></a>
           <img src="<?php echo !empty($group['group_image']) ? '../php/images/' . $group['group_image'] : '../php/images/1749820324penguin.jpg'; ?>" alt="Group Image">
           <div class="details">
-            <span><?php echo $group['group_name']; ?></span>
+            <span><?php echo htmlspecialchars($group['group_name']); ?></span>
             <?php
             $creator_check = mysqli_query($conn, "SELECT * FROM groups WHERE group_id = '$group_id' AND created_by = '{$_SESSION['unique_id']}'");
             if (mysqli_num_rows($creator_check) > 0) {
               echo '<a href="edit-group.php?group_id=' . $group_id . '" class="edit-group-btn">Edit Group</a>';
             }
             ?>
-            <p>Group Chat</p>
           </div>
         </header>
         <div class="chat-box"></div>
@@ -1046,108 +1191,120 @@ if (!isset($_SESSION['unique_id'])) {
     </div>
   </div>
 
-  <script src="js/users.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const leftSection = document.querySelector('.left-section');
+      const menuToggle = document.querySelector('.menu-toggle');
+      const mainContent = document.querySelector('.main-content');
+      const chatArea = document.querySelector('.chat-area');
+      const chatList = document.querySelector('.chat-list');
+      const backIcons = document.querySelectorAll('.back-icon');
+      const menuItems = document.querySelectorAll('.menu-item');
+      const usersList = document.querySelector('.users-list');
+      const groupList = document.querySelector('.group-list');
+      const requestsList = document.querySelector('.requests-list');
+      const contactsList = document.querySelector('.contacts-list');
+      const createGroup = document.querySelector('.create-group');
 
- <script>
+      // Debug element existence
+      console.log('Menu Toggle:', menuToggle);
+      console.log('Left Section:', leftSection);
+      if (!menuToggle) console.error('Menu toggle element not found');
+      if (!leftSection) console.error('Left section element not found');
 
-  document.addEventListener('DOMContentLoaded', function() {
-    const leftSection = document.querySelector('.left-section');
-    const menuToggle = document.querySelector('.menu-toggle');
-    const mainContent = document.querySelector('.main-content');
-    const chatArea = document.querySelector('.chat-area');
-    const chatList = document.querySelector('.chat-list');
-    const backIcons = document.querySelectorAll('.back-icon');
-    const menuItems = document.querySelectorAll('.menu-item');
-    const usersList = document.querySelector('.users-list');
-    const groupList = document.querySelector('.group-list');
-    const requestsList = document.querySelector('.requests-list');
-    const contactsList = document.querySelector('.contacts-list');
-    const createGroup = document.querySelector('.create-group');
-
-    // Update layout based on screen size and state
-    function updateLayout() {
+      // Update layout based on screen size and state
+      function updateLayout() {
         const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        console.log('Is Mobile:', isMobile, 'Left Section Expanded:', leftSection.classList.contains('expanded'));
+
         if (isMobile) {
-            leftSection.style.display = 'flex';
-            if (chatArea.classList.contains('active') || window.location.search.includes('user_id') || window.location.search.includes('group_id')) {
-                mainContent.style.display = 'none';
-                chatList.style.display = 'none';
-                chatArea.style.display = 'flex';
-                contactsList.style.display = 'none';
-                createGroup.style.display = 'none';
-            } else if (contactsList.classList.contains('active')) {
-                mainContent.style.display = 'none';
-                chatList.style.display = 'none';
-                chatArea.style.display = 'none';
-                contactsList.style.display = 'block';
-                createGroup.style.display = 'none';
-            } else if (createGroup.classList.contains('active')) {
-                mainContent.style.display = 'none';
-                chatList.style.display = 'none';
-                chatArea.style.display = 'none';
-                contactsList.style.display = 'none';
-                createGroup.style.display = 'block';
-            } else {
-                mainContent.style.display = 'block';
-                chatList.style.display = 'block';
-                chatArea.style.display = 'none';
-                contactsList.style.display = 'none';
-                createGroup.style.display = 'none';
-            }
-        } else {
-            leftSection.style.display = 'block';
-            mainContent.style.display = 'block';
-            chatList.style.display = 'flex';
+          // Hide footer when chat is active
+          if (chatArea.classList.contains('active') || window.location.search.includes('user_id') || window.location.search.includes('group_id')) {
+            leftSection.style.display = 'none'; // Hide footer
+            mainContent.style.display = 'none';
+            chatList.style.display = 'none';
             chatArea.style.display = 'flex';
-            contactsList.style.display = contactsList.classList.contains('active') ? 'block' : 'none';
-            createGroup.style.display = createGroup.classList.contains('active') ? 'block' : 'none';
+            contactsList.style.display = 'none';
+            createGroup.style.display = 'none';
+          } else if (contactsList.classList.contains('active')) {
+            leftSection.style.display = 'flex'; // Show footer
+            mainContent.style.display = 'none';
+            chatList.style.display = 'block'; // Ensure chat-list is visible to show contacts
+            chatArea.style.display = 'none';
+            contactsList.style.display = 'block'; // Explicitly show contacts
+            createGroup.style.display = 'none';
+          } else {
+            leftSection.style.display = 'flex'; // Show footer
+            mainContent.style.display = 'block';
+            chatList.style.display = 'block';
+            chatArea.style.display = 'none';
+            contactsList.style.display = 'none';
+            createGroup.style.display = 'none';
+          }
+        } else {
+          leftSection.style.display = 'block';
+          leftSection.style.transform = leftSection.classList.contains('expanded') ? 'translateX(0)' : 'translateX(-25vw)';
+          mainContent.style.display = 'block';
+          chatList.style.display = 'flex';
+          chatArea.style.display = 'flex';
+          contactsList.style.display = contactsList.classList.contains('active') ? 'block' : 'none';
+          createGroup.style.display = 'none';
         }
-    }
 
-    // Sidebar toggle
-    menuToggle.addEventListener('click', function(e) {
-        e.preventDefault();
-        leftSection.classList.toggle('expanded');
-        updateLayout();
-    });
+        console.log('Left Section Display:', leftSection.style.display, 'Transform:', leftSection.style.transform);
+      }
 
-    // Handle user/group clicks in chat-list
-    chatList.addEventListener('click', function(e) {
+      // Sidebar toggle (desktop only)
+      if (menuToggle) {
+        menuToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (!window.matchMedia('(max-width: 768px)').matches) {
+            console.log('Menu toggle clicked');
+            leftSection.classList.toggle('expanded');
+            updateLayout();
+          }
+        });
+      }
+
+      // Handle user/group clicks in chat-list
+      chatList.addEventListener('click', function(e) {
         const link = e.target.closest('.chat-link, .user-item');
         if (link) {
-            e.preventDefault();
-            const isMobile = window.matchMedia('(max-width: 768px)').matches;
-            if (isMobile) {
-                chatArea.classList.add('active');
-                mainContent.style.display = 'none';
-                chatList.style.display = 'none';
-                chatArea.style.display = 'flex';
-                contactsList.style.display = 'none';
-                createGroup.style.display = 'none';
-            }
-            window.location.href = link.href;
+          e.preventDefault();
+          const isMobile = window.matchMedia('(max-width: 768px)').matches;
+          if (isMobile) {
+            chatArea.classList.add('active');
+            mainContent.style.display = 'none';
+            chatList.style.display = 'none';
+            chatArea.style.display = 'flex';
+            contactsList.style.display = 'none';
+            createGroup.style.display = 'none';
+            leftSection.style.display = 'none'; // Hide footer when chat is opened
+          }
+          window.location.href = link.href;
         }
-    });
+      });
 
-    // Handle back button
-    backIcons.forEach(icon => {
+      // Handle back button
+      backIcons.forEach(icon => {
         icon.addEventListener('click', function(e) {
-            e.preventDefault();
-            const isMobile = window.matchMedia('(max-width: 768px)').matches;
-            if (isMobile) {
-                chatArea.classList.remove('active');
-                chatArea.style.display = 'none';
-                mainContent.style.display = 'block';
-                chatList.style.display = 'block';
-                contactsList.style.display = 'none';
-                createGroup.style.display = 'none';
-            }
-            window.location.href = 'users.php';
+          e.preventDefault();
+          const isMobile = window.matchMedia('(max-width: 768px)').matches;
+          if (isMobile) {
+            chatArea.classList.remove('active');
+            chatArea.style.display = 'none';
+            mainContent.style.display = 'block';
+            chatList.style.display = 'block';
+            contactsList.style.display = 'none';
+            createGroup.style.display = 'none';
+            leftSection.style.display = 'flex'; // Show footer when returning to chat list
+          }
+          window.location.href = 'users.php';
         });
-    });
+      });
 
-    // Toggle users/groups
-    document.getElementById('show-users').addEventListener('click', function() {
+      // Toggle users/groups
+      document.getElementById('show-users').addEventListener('click', function() {
         usersList.classList.add('active');
         groupList.classList.remove('active');
         requestsList.classList.remove('active');
@@ -1157,9 +1314,9 @@ if (!isset($_SESSION['unique_id'])) {
         document.getElementById('show-groups').classList.remove('active');
         document.querySelector('.chat-list header h1').textContent = 'Chats';
         updateLayout();
-    });
+      });
 
-    document.getElementById('show-groups').addEventListener('click', function() {
+      document.getElementById('show-groups').addEventListener('click', function() {
         usersList.classList.remove('active');
         groupList.classList.add('active');
         requestsList.classList.remove('active');
@@ -1169,349 +1326,383 @@ if (!isset($_SESSION['unique_id'])) {
         document.getElementById('show-users').classList.remove('active');
         document.querySelector('.chat-list header h1').textContent = 'Groups';
         updateLayout();
-    });
+      });
 
-    // Menu item handling
-    menuItems.forEach(item => {
+      // Menu item handling
+      menuItems.forEach(item => {
         item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const section = this.getAttribute('data-section');
-            const page = this.getAttribute('data-page');
-            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+          e.preventDefault();
+          const section = this.getAttribute('data-section');
+          const page = this.getAttribute('data-page');
+          const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
-            menuItems.forEach(i => i.classList.remove('active'));
-            this.classList.add('active');
+          menuItems.forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
 
-            if (section === 'users') {
-                usersList.classList.add('active');
-                groupList.classList.remove('active');
-                requestsList.classList.remove('active');
-                contactsList.classList.remove('active');
-                createGroup.classList.remove('active');
-                document.getElementById('show-users').classList.add('active');
-                document.getElementById('show-groups').classList.remove('active');
-                document.querySelector('.chat-list header h1').textContent = 'Chats';
-                if (!isMobile) {
-                    leftSection.classList.add('expanded');
-                }
-            } else if (section === 'requests') {
-                usersList.classList.remove('active');
-                groupList.classList.remove('active');
-                requestsList.classList.add('active');
-                contactsList.classList.remove('active');
-                createGroup.classList.remove('active');
-                document.getElementById('show-users').classList.remove('active');
-                document.getElementById('show-groups').classList.remove('active');
-                document.querySelector('.chat-list header h1').textContent = 'Chat Requests';
-                if (!isMobile) {
-                    leftSection.classList.add('expanded');
-                }
-                loadChatRequests();
-            } else if (section === 'contacts') {
-                usersList.classList.remove('active');
-                groupList.classList.remove('active');
-                requestsList.classList.remove('active');
-                contactsList.classList.add('active');
-                createGroup.classList.remove('active');
-                document.getElementById('show-users').classList.remove('active');
-                document.getElementById('show-groups').classList.remove('active');
-                document.querySelector('.chat-list header h1').textContent = 'Contacts';
-                if (!isMobile) {
-                    leftSection.classList.add('expanded');
-                }
-                loadContactsList();
-            } else if (section === 'create-group') {
-                usersList.classList.remove('active');
-                groupList.classList.remove('active');
-                requestsList.classList.remove('active');
-                contactsList.classList.remove('active');
-                createGroup.classList.add('active');
-                document.getElementById('show-users').classList.remove('active');
-                document.getElementById('show-groups').classList.remove('active');
-                document.querySelector('.chat-list header h1').textContent = 'Create Group';
-                if (!isMobile) {
-                    leftSection.classList.add('expanded');
-                }
-                loadCreateGroup();
-            } else if (page) {
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.getElementById(page).classList.add('active');
-                usersList.classList.remove('active');
-                groupList.classList.remove('active');
-                requestsList.classList.remove('active');
-                contactsList.classList.remove('active');
-                createGroup.classList.remove('active');
-                if (!isMobile) {
-                    leftSection.classList.add('expanded');
-                }
-                updateLayout();
-            } else {
-                window.location.href = this.href;
+          if (section === 'users') {
+            usersList.classList.add('active');
+            groupList.classList.remove('active');
+            requestsList.classList.remove('active');
+            contactsList.classList.remove('active');
+            createGroup.classList.remove('active');
+            document.getElementById('show-users').classList.add('active');
+            document.getElementById('show-groups').classList.remove('active');
+            document.querySelector('.chat-list header h1').textContent = 'Chats';
+            if (!isMobile) {
+              leftSection.classList.add('expanded');
             }
+            updateLayout();
+          } else if (section === 'requests') {
+            usersList.classList.remove('active');
+            groupList.classList.remove('active');
+            requestsList.classList.add('active');
+            contactsList.classList.remove('active');
+            createGroup.classList.remove('active');
+            document.getElementById('show-users').classList.remove('active');
+            document.getElementById('show-groups').classList.remove('active');
+            document.querySelector('.chat-list header h1').textContent = 'Chat Requests';
+            if (!isMobile) {
+              leftSection.classList.add('expanded');
+            }
+            loadChatRequests();
+            updateLayout();
+          } else if (section === 'contacts') {
+            usersList.classList.remove('active');
+            groupList.classList.remove('active');
+            requestsList.classList.remove('active');
+            contactsList.classList.add('active');
+            createGroup.classList.remove('active');
+            document.getElementById('show-users').classList.remove('active');
+            document.getElementById('show-groups').classList.remove('active');
+            document.querySelector('.chat-list header h1').textContent = 'Contacts';
+            if (!isMobile) {
+              leftSection.classList.add('expanded');
+            }
+            loadContactsList();
+            updateLayout();
+          } else if (section === 'create-group') {
+            usersList.classList.remove('active');
+            groupList.classList.remove('active');
+            requestsList.classList.remove('active');
+            contactsList.classList.remove('active');
+            createGroup.classList.remove('active');
+            document.getElementById('show-users').classList.remove('active');
+            document.getElementById('show-groups').classList.remove('active');
+            document.querySelector('.chat-list header h1').textContent = 'Chats';
+            showCreateGroupModal();
+            updateLayout();
+          } else if (page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(page)?.classList.add('active');
+            usersList.classList.remove('active');
+            groupList.classList.remove('active');
+            requestsList.classList.remove('active');
+            contactsList.classList.remove('active');
+            createGroup.classList.remove('active');
+            if (!isMobile) {
+              leftSection.classList.add('expanded');
+            }
+            updateLayout();
+          } else {
+            window.location.href = this.href;
+          }
         });
-    });
+      });
 
-    // Load chat requests via AJAX
-    function loadChatRequests() {
-        const requestsList = document.getElementById('requests-list');
-        requestsList.innerHTML = '<p>Loading...</p>';
+      // Create and show modal for create group
+      function showCreateGroupModal() {
+        // Remove any existing modal
+        const existingModal = document.querySelector('.modal');
+        if (existingModal) existingModal.remove();
 
-        fetch('chat-requests.php', {
-            method: 'GET',
-            headers: { 'Accept': 'text/html, application/json' }
+        // Create modal elements
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content';
+        const closeButton = document.createElement('button');
+        closeButton.className = 'close-btn';
+        closeButton.innerHTML = '×';
+
+        closeButton.addEventListener('click', () => modal.remove());
+        modalContent.appendChild(closeButton);
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+
+        // Load create group content
+        modalContent.innerHTML += '<p>Loading...</p>';
+
+        fetch('create-group.php?ajax=1', {
+          method: 'GET',
+          headers: { 'Accept': 'text/html, application/json' }
         })
         .then(res => {
-            if (!res.ok) {
-                throw new Error(`HTTP error! Status: ${res.status}`);
-            }
-            return res.text();
-        })
-        .then(data => {
-            try {
-                const json = JSON.parse(data);
-                if (json.status === 'error') {
-                    requestsList.innerHTML = `<p>Error: ${json.message}</p>`;
-                    return;
-                }
-            } catch (e) {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(data, 'text/html');
-                const chatBox = doc.querySelector('#requests-container');
-                if (chatBox) {
-                    requestsList.innerHTML = '';
-                    requestsList.appendChild(chatBox);
-                    chatBox.addEventListener('click', function(e) {
-                        if (e.target.matches('.btn-approve') || e.target.matches('.btn-reject')) {
-                            const card = e.target.closest('.request-card');
-                            const senderId = card.dataset.senderId;
-                            const action = e.target.dataset.action;
-
-                            e.target.style.opacity = '0.7';
-                            setTimeout(() => { e.target.style.opacity = '1'; }, 200);
-
-                            fetch('../php/approve-request.php', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                                body: `sender_id=${encodeURIComponent(senderId)}&action=${encodeURIComponent(action)}`
-                            })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (data.status === 'success') {
-                                    card.style.opacity = '0';
-                                    setTimeout(() => { 
-                                        card.remove(); 
-                                        if (!chatBox.querySelector('.request-card')) {
-                                            chatBox.innerHTML = `
-                                                <div class="no-requests">
-                                                    <i class="fas fa-info-circle"></i>
-                                                    <p>No chat requests at the moment.</p>
-                                                </div>`;
-                                        }
-                                    }, 300);
-                                } else {
-                                    alert('Failed to process request: ' + data.status);
-                                }
-                            })
-                            .catch(error => console.error('Error:', error));
-                        }
-                    });
-                } else {
-                    requestsList.innerHTML = '<p>Error: Could not load requests.</p>';
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            requestsList.innerHTML = '<p>Error loading requests.</p>';
-        });
-    }
-
-    // Load contacts list via AJAX
-    function loadContactsList() {
-        const contactsList = document.querySelector('#contacts-list');
-        contactsList.innerHTML = '<p>Loading...</p>';
-
-        fetch('contact-list.php?ajax=1', {
-            method: 'GET',
-            headers: { 'Accept': 'text/html, application/json' }
-        })
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`HTTP error! Status: ${res.status}`);
-            }
-            return res.text();
-        })
-        .then(data => {
-            try {
-                const json = JSON.parse(data);
-                if (json.status === 'error') {
-                    contactsList.innerHTML = `<p>Error: ${json.message}</p>`;
-                    return;
-                }
-            } catch (e) {
-                contactsList.innerHTML = data;
-                fixUsersListProfileImages();
-                const contactItems = contactsList.querySelectorAll('.contact-item');
-                contactItems.forEach(item => {
-                    item.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const isMobile = window.matchMedia('(max-width: 768px)').matches;
-                        if (isMobile) {
-                            chatArea.classList.add('active');
-                            mainContent.style.display = 'none';
-                            chatList.style.display = 'none';
-                            chatArea.style.display = 'flex';
-                            contactsList.style.display = 'none';
-                            createGroup.style.display = 'none';
-                        }
-                        window.location.href = this.href;
-                    });
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            contactsList.innerHTML = '<p>Error loading contacts.</p>';
-        });
-    }
-
-    // Load create group via AJAX
-    function loadCreateGroup() {
-    const createGroup = document.querySelector('#create-group');
-    createGroup.innerHTML = '<p>Loading...</p>';
-
-    fetch('create-group.php?ajax=1', {
-        method: 'GET',
-        headers: { 'Accept': 'text/html, application/json' }
-    })
-    .then(res => {
-        if (!res.ok) {
+          if (!res.ok) {
             throw new Error(`HTTP error! Status: ${res.status}`);
-        }
-        return res.text();
-    })
-    .then(data => {
-        try {
+          }
+          return res.text();
+        })
+        .then(data => {
+          try {
             const json = JSON.parse(data);
             if (json.status === 'error') {
-                createGroup.innerHTML = `<p>Error: ${json.message}</p>`;
-                return;
+              modalContent.innerHTML = `<p>Error: ${json.message}</p>`;
+              modalContent.appendChild(closeButton);
+              return;
             }
-        } catch (e) {
-            createGroup.innerHTML = data;
-            const form = createGroup.querySelector('#groupForm');
+          } catch (e) {
+            modalContent.innerHTML = data;
+            const form = modalContent.querySelector('#groupForm');
             const checkboxes = form.querySelectorAll('input[name="members[]"]');
             const warning = form.querySelector('#memberCountWarning');
             const counter = form.querySelector('#memberCount');
 
             function updateCount() {
-                const selected = [...checkboxes].filter(cb => cb.checked).length;
-                counter.textContent = `Selected: ${selected} / 250`;
-                if (selected > 250) {
-                    warning.style.display = 'block';
-                } else {
-                    warning.style.display = 'none';
-                }
+              const selected = [...checkboxes].filter(cb => cb.checked).length;
+              counter.textContent = `Selected: ${selected} / 250`;
+              if (selected > 250) {
+                warning.style.display = 'block';
+              } else {
+                warning.style.display = 'none';
+              }
             }
 
             checkboxes.forEach(cb => {
-                cb.addEventListener('change', function () {
-                    const selected = [...checkboxes].filter(cb => cb.checked);
-                    if (selected.length > 250) {
-                        this.checked = false;
-                    }
-                    updateCount();
-                });
+              cb.addEventListener('change', function () {
+                const selected = [...checkboxes].filter(cb => cb.checked);
+                if (selected.length > 250) {
+                  this.checked = false;
+                }
+                updateCount();
+              });
             });
 
             updateCount();
 
             form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const selected = [...checkboxes].filter(cb => cb.checked);
-                if (selected.length > 250) {
-                    warning.style.display = 'block';
-                    return;
+              e.preventDefault();
+              const selected = [...checkboxes].filter(cb => cb.checked);
+              if (selected.length > 250) {
+                warning.style.display = 'block';
+                return;
+              }
+              const formData = new FormData(this);
+              fetch('../php/create-group.php', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest'
                 }
-                const formData = new FormData(this);
-                fetch('../php/create-group.php', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest' // Indicate AJAX request
-                    }
-                })
-                .then(res => {
-                    if (!res.ok) {
-                        return res.text().then(text => {
-                            throw new Error(`HTTP error! Status: ${res.status}, Response: ${text}`);
-                        });
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    if (data.status === 'success') {
-                        alert('Group created successfully!');
-                        // Navigate to the group chat or refresh group list
-                        window.location.href = `users.php?group_id=${data.group_id}`;
-                        // Alternatively, click "Groups" to refresh: document.getElementById('show-groups').click();
-                    } else {
-                        createGroup.innerHTML = `<p>Error: ${data.message}</p>`;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    console.log('Response causing error:', error.message);
-                    createGroup.innerHTML = `<p>Error creating group: ${error.message}</p>`;
-                });
+              })
+              .then(res => {
+                if (!res.ok) {
+                  return res.text().then(text => {
+                    throw new Error(`HTTP error! Status: ${res.status}, Response: ${text}`);
+                  });
+                }
+                return res.json();
+              })
+              .then(data => {
+                if (data.status === 'success') {
+                  alert('Group created successfully!');
+                  modal.remove();
+                  window.location.href = `users.php?group_id=${data.group_id}`;
+                } else {
+                  modalContent.innerHTML = `<p>Error: ${data.message}</p>`;
+                  modalContent.appendChild(closeButton);
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                modalContent.innerHTML = `<p>Error creating group: ${error.message}</p>`;
+                modalContent.appendChild(closeButton);
+              });
             });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        createGroup.innerHTML = `<p>Error loading create group form: ${error.message}</p>`;
-    });
-}
+          }
+        })
+        .then(() => {
+          // Ensure footer is visible when modal is opened
+          const isMobile = window.matchMedia('(max-width: 768px)').matches;
+          if (isMobile) {
+            leftSection.style.display = 'flex';
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          modalContent.innerHTML = `<p>Error loading create group form: ${error.message}</p>`;
+          modalContent.appendChild(closeButton);
+        });
 
-    // Fix profile images
-    function fixUsersListProfileImages() {
+        // Close modal on click outside
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) modal.remove();
+        });
+
+        // Close modal on Escape key
+        modal.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') modal.remove();
+        });
+      }
+
+      // Load chat requests via AJAX
+      function loadChatRequests() {
+        const requestsList = document.getElementById('requests-list');
+        requestsList.innerHTML = '<p>Loading...</p>';
+
+        fetch('chat-requests.php', {
+          method: 'GET',
+          headers: { 'Accept': 'text/html, application/json' }
+        })
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! Status: ${res.status}`);
+          }
+          return res.text();
+        })
+        .then(data => {
+          try {
+            const json = JSON.parse(data);
+            if (json.status === 'error') {
+              requestsList.innerHTML = `<p>Error: ${json.message}</p>`;
+              return;
+            }
+          } catch (e) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data, 'text/html');
+            const chatBox = doc.querySelector('#requests-container');
+            if (chatBox) {
+              requestsList.innerHTML = '';
+              requestsList.appendChild(chatBox);
+              chatBox.addEventListener('click', function(e) {
+                if (e.target.matches('.btn-approve') || e.target.matches('.btn-reject')) {
+                  const card = e.target.closest('.request-card');
+                  const senderId = card.dataset.senderId;
+                  const action = e.target.dataset.action;
+
+                  e.target.style.opacity = '0.7';
+                  setTimeout(() => { e.target.style.opacity = '1'; }, 200);
+
+                  fetch('../php/approve-request.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `sender_id=${encodeURIComponent(senderId)}&action=${encodeURIComponent(action)}`
+                  })
+                  .then(res => res.json())
+                  .then(data => {
+                    if (data.status === 'success') {
+                      card.style.opacity = '0';
+                      setTimeout(() => { 
+                        card.remove(); 
+                        if (!chatBox.querySelector('.request-card')) {
+                          chatBox.innerHTML = `
+                            <div class="no-requests">
+                              <i class="fas fa-info-circle"></i>
+                              <p>No chat requests at the moment.</p>
+                            </div>`;
+                        }
+                      }, 300);
+                    } else {
+                      alert('Failed to process request: ' + data.status);
+                    }
+                  })
+                  .catch(error => console.error('Error:', error));
+                }
+              });
+            } else {
+              requestsList.innerHTML = '<p>Error: Could not load requests.</p>';
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          requestsList.innerHTML = '<p>Error loading requests.</p>';
+        });
+      }
+
+      // Load contacts list via AJAX
+      function loadContactsList() {
+        const contactsList = document.querySelector('#contacts-list');
+        contactsList.innerHTML = '<p>Loading...</p>';
+
+        fetch('contact-list.php?ajax=1', {
+          method: 'GET',
+          headers: { 'Accept': 'text/html, application/json' }
+        })
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! Status: ${res.status}`);
+          }
+          return res.text();
+        })
+        .then(data => {
+          try {
+            const json = JSON.parse(data);
+            if (json.status === 'error') {
+              contactsList.innerHTML = `<p>Error: ${json.message}</p>`;
+              return;
+            }
+          } catch (e) {
+            contactsList.innerHTML = data;
+            fixUsersListProfileImages();
+            const contactItems = contactsList.querySelectorAll('.contact-item');
+            contactItems.forEach(item => {
+              item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                if (isMobile) {
+                  chatArea.classList.add('active');
+                  mainContent.style.display = 'none';
+                  chatList.style.display = 'none';
+                  chatArea.style.display = 'flex';
+                  contactsList.style.display = 'none';
+                  createGroup.style.display = 'none';
+                  leftSection.style.display = 'none'; // Hide footer when chat is opened from contacts
+                }
+                window.location.href = this.href;
+              });
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          contactsList.innerHTML = '<p>Error loading contacts.</p>';
+        });
+      }
+
+      // Fix profile images
+      function fixUsersListProfileImages() {
         const userImages = document.querySelectorAll('.users-list img:not([data-fixed]), .requests-list img:not([data-fixed]), .contacts-list img:not([data-fixed])');
         userImages.forEach(image => {
-            image.setAttribute('data-fixed', 'true');
-            if (image.src.includes('/images/')) {
-                const filename = image.src.split('/images/')[1] || 'default.jpg';
-                image.src = '../php/images/' + filename;
-            }
-            image.onerror = function() {
-                this.src = '../php/images/default.jpg';
-            };
-            if (!image.src || image.src.includes('undefined') || image.src === window.location.href || image.src.endsWith('/images/')) {
-                image.src = '../php/images/default.jpg';
-            }
+          image.setAttribute('data-fixed', 'true');
+          if (image.src.includes('/images/')) {
+            const filename = image.src.split('/images/')[1] || 'default.jpg';
+            image.src = '../php/images/' + filename;
+          }
+          image.onerror = function() {
+            this.src = '../php/images/default.jpg';
+          };
+          if (!image.src || image.src.includes('undefined') || image.src === window.location.href || image.src.endsWith('/images/')) {
+            image.src = '../php/images/default.jpg';
+          }
         });
-    }
+      }
 
-    fixUsersListProfileImages();
-    const observer = new MutationObserver(() => {
+      fixUsersListProfileImages();
+      const observer = new MutationObserver(() => {
         clearTimeout(debounceTimeout);
         debounceTimeout = setTimeout(fixUsersListProfileImages, 100);
+      });
+      let debounceTimeout;
+      observer.observe(usersList, { childList: true, subtree: true });
+      observer.observe(requestsList, { childList: true, subtree: true });
+      observer.observe(contactsList, { childList: true, subtree: true });
+
+      // Initial layout setup
+      updateLayout();
+
+      // Update layout on resize
+      window.addEventListener('resize', updateLayout);
     });
-    let debounceTimeout;
-    observer.observe(usersList, { childList: true, subtree: true });
-    observer.observe(requestsList, { childList: true, subtree: true });
-    observer.observe(contactsList, { childList: true, subtree: true });
-
-    // Initial layout setup
-    updateLayout();
-
-    // Update layout on resize
-    window.addEventListener('resize', updateLayout);
-});
-
- </script>
-
-   
-
-
+  </script>
 </body>
 </html>
