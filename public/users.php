@@ -118,7 +118,7 @@ if (!isset($_SESSION['unique_id'])) {
       padding: 15px 20px;
       border-bottom: 1px solid #e0e0e0;
       background: #fdfdfd;
-      color: black;
+      color: white;
       display: flex;
       align-items: center;
       flex-shrink: 0;
@@ -126,6 +126,7 @@ if (!isset($_SESSION['unique_id'])) {
 
     .chat-list header h1 {
       margin: 0;
+      color: black;
       font-size: 24px;
     }
 
@@ -146,12 +147,13 @@ if (!isset($_SESSION['unique_id'])) {
 
     .chat-list .search button {
       background: #3498db;
-      color: black;
+      color: white;
       border: none;
       padding: 8px;
       border-radius: 5px;
       cursor: pointer;
       margin-left: 10px;
+      display:none;
     }
 
     .chat-list .toggle-buttons {
@@ -175,7 +177,7 @@ if (!isset($_SESSION['unique_id'])) {
 
     .chat-list .toggle-btn.active {
       background: #3498db;
-      color: black;
+      color: white;
     }
 
     .chat-list .users-list,
@@ -209,7 +211,7 @@ if (!isset($_SESSION['unique_id'])) {
       box-shadow: 0 1px 2px rgba(0,0,0,0.1);
       display: block;
       text-decoration: none;
-      color: #333;
+      color: black;
     }
 
     .chat-list .user-item:hover {
@@ -237,12 +239,12 @@ if (!isset($_SESSION['unique_id'])) {
       display: flex;
       align-items: center;
       text-decoration: none;
-      color: #333;
+      color: black;
     }
 
     .chat-list .group-item a i {
       margin-right: 10px;
-      color: #888;
+      color: black;
     }
 
     .chat-list .user-item img {
@@ -269,7 +271,7 @@ if (!isset($_SESSION['unique_id'])) {
 
     .chat-list .user-item .details p .last-message {
       max-width: 100%;
-      black-space: nowrap;
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
@@ -347,12 +349,12 @@ if (!isset($_SESSION['unique_id'])) {
 
     .chat-list .requests-list .btn-approve {
       background-color: #28a745;
-      color: black;
+      color: white;
     }
 
     .chat-list .requests-list .btn-reject {
       background-color: #dc3545;
-      color: black;
+      color: white;
     }
 
     .chat-list .requests-list .btn-approve:hover {
@@ -427,7 +429,7 @@ if (!isset($_SESSION['unique_id'])) {
 
     .user-list li.active {
       background-color: #3498db;
-      color: black;
+      color: white;
     }
 
     /* Chat Area */
@@ -484,7 +486,10 @@ if (!isset($_SESSION['unique_id'])) {
       position: fixed;
       right: 20px !important;
       font-size: 14px;
-      color: black;
+      color: white;  ;
+      background:#3498db;
+      padding: 8px 12px;
+      border-radius: 20px;
       text-decoration: none;
     }
 
@@ -511,15 +516,27 @@ if (!isset($_SESSION['unique_id'])) {
 
     .chat.outgoing {
       align-self: flex-end;
-      background: #dcf8c6;
+      background:rgb(255, 255, 255);
       color: #000;
+      box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.88);
+    }
+    .details .delete-btn{
+      color: #ff0000 !important;
+      font-size: 12px;
+      cursor: pointer;
+      margin-left: 10px;  
+      display: none; /* Hide delete button by default */  
+    }
+    .chat.outgoing:hover .details .delete-btn {
+      display:inline; /* Show delete button on hover */
+      
     }
 
     .chat.incoming {
       align-self: flex-start;
       background: #fff;
       color: #000;
-      box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+      box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.87);
     }
 
     .chat .details p {
@@ -529,7 +546,7 @@ if (!isset($_SESSION['unique_id'])) {
     }
 
     .chat .time {
-      font-size: 10px;
+      font-size: 7px;
       color: #888;
       align-self: flex-end;
       margin-top: 4px;
@@ -550,7 +567,7 @@ if (!isset($_SESSION['unique_id'])) {
 
     .typing-area .insert-button {
       font-size: 20px;
-      color: black;
+      color: #3498db;
       cursor: pointer;
       margin-right: 10px;
     }
@@ -565,7 +582,7 @@ if (!isset($_SESSION['unique_id'])) {
 
     .typing-area button {
       background: #3498db;
-      color: black;
+      color: white;
       border: none;
       padding: 8px 12px;
       border-radius: 20px;
@@ -606,7 +623,7 @@ if (!isset($_SESSION['unique_id'])) {
       padding: 10px;
       text-decoration: none;
       color: #000;
-      background: black;
+      background: white;
       border-radius: 5px;
       margin-bottom: 10px;
     }
@@ -620,7 +637,7 @@ if (!isset($_SESSION['unique_id'])) {
       height: 40px;
       border-radius: 50%;
       object-fit: cover;
-      border: 1px solid black;
+      border: 1px solid white;
     }
 
     .contacts-list .contact-details {
@@ -782,7 +799,7 @@ if (!isset($_SESSION['unique_id'])) {
     }
 
     .modal-content {
-      background: black;
+      background: white;
       padding: 20px;
       border-radius: 8px;
       width: 90%;
