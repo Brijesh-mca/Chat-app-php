@@ -223,10 +223,7 @@ if ($result) $stats['online_users'] = $result->fetch_assoc()['count'];
                         <i class="fas fa-plus-circle"></i>
                         <span>Create New Group</span>
                     </a>
-                      <a href="admin-view-tickets.php" class="btn btn-info">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Tickets</span>
-                    </a>
+                      
                       <a href="admin-view-tickets.php" class="btn btn-info">
                         <i class="fas fa-plus-circle"></i>
                         <span>Tickets</span>
