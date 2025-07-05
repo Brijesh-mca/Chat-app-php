@@ -22,12 +22,12 @@ if (!isset($_SESSION['unique_id'])) {
       display: flex;
       height: 100vh;
       overflow: hidden;
-      background-color:#fdfdfd;
+      background-color: #fdfdfd;
     }
 
-    /* Left Section (Sidebar/Footer) */
+    /* Left Section (Desktop Sidebar) */
     .left-section {
-      width: 30vw;
+      width: 18vw;
       background-color: #fdfdfd;
       color: black;
       padding: 20px;
@@ -35,16 +35,15 @@ if (!isset($_SESSION['unique_id'])) {
       position: fixed;
       top: 0;
       left: 0;
-      boredrer-right: 1px solid red;
+      border-right: 1px solid red;
       height: 100vh;
-      transform: translateX(-25vw); /* Show 10vw by default */
+      transform: translateX(-13vw); /* Show 5vw in closed state */
       transition: transform 0.3s ease;
       z-index: 1000;
-      border-right: 1px solid red;
     }
 
     .left-section.expanded {
-      transform: translateX(-15vw); /* Show full 30vw */
+      transform: translateX(0); /* Show full 18vw when expanded */
     }
 
     .left-section .menu-toggle {
@@ -55,6 +54,8 @@ if (!isset($_SESSION['unique_id'])) {
       margin-bottom: 10px;
       display: block;
       cursor: pointer;
+      position: relative;
+       /* Align toggle with icons in closed state */
     }
 
     .left-content {
@@ -85,6 +86,8 @@ if (!isset($_SESSION['unique_id'])) {
       align-items: center;
       padding: 10px;
       border-radius: 5px;
+      position: relative;
+      left: 13vw; /* Shift icons to be fully visible in closed state */
     }
 
     .menu-item i {
@@ -94,32 +97,91 @@ if (!isset($_SESSION['unique_id'])) {
     }
 
     .menu-item span {
-      
       display: none; /* Hide text by default */
     }
 
     .left-section.expanded .menu-item span {
-      display: none; /* Show text when expanded */
+      display: inline; /* Show text when expanded */
+    }
+
+    .left-section.expanded .menu-item,
+    .left-section.expanded .menu-toggle {
+      left: 0; /* Reset position when expanded */
     }
 
     .menu-item:hover,
     .menu-item.active {
-      background-color:rgba(203, 203, 203, 0.68);
+      background-color: rgba(203, 203, 203, 0.68);
+    }
+
+    /* Mobile Footer */
+    .mobile-footer {
+      display: none;
+      width: 100vw;
+      height: 60px;
+      background-color: #fdfdfd;
+      border-top: 1px solid red;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      padding: 0;
+    }
+
+    .mobile-footer .menu-items {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 100%;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .mobile-footer .menu-items li {
+      flex: 1;
+      text-align: center;
+      margin: 0;
+    }
+
+    .mobile-footer .menu-item {
+      padding: 5px;
+      justify-content: center;
+      color: black;
+      text-decoration: none;
+      font-size: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .mobile-footer .menu-item i {
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+
+    .mobile-footer .menu-item span {
+      display: none;
+    }
+
+    .mobile-footer .menu-item:hover,
+    .mobile-footer .menu-item.active {
+      background-color: rgba(203, 203, 203, 0.68);
     }
 
     /* Chat List (Sidebar) */
-    .chat-list {
-      width: 30vw;
-      background: #fff;
-      border-right: 1px solid #ddd;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 5vw;
-      z-index: 1;
-    }
+   .chat-list {
+  width: 25vw; /* Change from 30vw to 25vw */
+  background: #fff;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 5vw;
+  z-index: 2;
+}
 
     .chat-list header {
       padding: 15px 20px;
@@ -160,7 +222,7 @@ if (!isset($_SESSION['unique_id'])) {
       border-radius: 5px;
       cursor: pointer;
       margin-left: 10px;
-      display:none;
+      display: none;
     }
 
     .chat-list .toggle-buttons {
@@ -198,7 +260,7 @@ if (!isset($_SESSION['unique_id'])) {
       background: #f4f4f4;
       display: none;
       position: relative;
-      -webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
+      -webkit-overflow-scrolling: touch;
       max-height: 100%;
     }
 
@@ -215,7 +277,7 @@ if (!isset($_SESSION['unique_id'])) {
       padding: 10px;
       border-radius: 5px;
       background: white;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      box_shadow: 0 1px 2px rgba(0,0,0,0.1);
       display: block;
       text-decoration: none;
       color: black;
@@ -404,7 +466,7 @@ if (!isset($_SESSION['unique_id'])) {
       background-color: #f4f4f4;
       position: fixed;
       top: 0;
-      left: 35vw;
+      left: 23vw;
       height: 100vh;
       z-index: 1;
     }
@@ -441,7 +503,7 @@ if (!isset($_SESSION['unique_id'])) {
 
     /* Chat Area */
     .chat-area {
-      width: calc(100vw - 35vw); /* ~65% */
+      width: calc(100vw - 30vw);
       background: #ecf0f1;
       box-sizing: border-box;
       display: flex;
@@ -450,7 +512,7 @@ if (!isset($_SESSION['unique_id'])) {
       right: 0;
       top: 0;
       height: 100vh;
-      z-index: 1;
+      z-index: 1; /* Lower than chat-list to prevent overlap */
     }
 
     .chat-area header {
@@ -493,8 +555,8 @@ if (!isset($_SESSION['unique_id'])) {
       position: fixed;
       right: 20px !important;
       font-size: 14px;
-      color: white;  ;
-      background:#3498db;
+      color: white;
+      background: #3498db;
       padding: 8px 12px;
       border-radius: 20px;
       text-decoration: none;
@@ -508,7 +570,7 @@ if (!isset($_SESSION['unique_id'])) {
       padding: 20px;
       display: flex;
       flex-direction: column;
-      -webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
+      -webkit-overflow-scrolling: touch;
     }
 
     .chat {
@@ -523,20 +585,21 @@ if (!isset($_SESSION['unique_id'])) {
 
     .chat.outgoing {
       align-self: flex-end;
-      background:rgb(255, 255, 255);
+      background: rgb(255, 255, 255);
       color: #000;
       box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.88);
     }
-    .details .delete-btn{
+
+    .details .delete-btn {
       color: #ff0000 !important;
       font-size: 12px;
       cursor: pointer;
-      margin-left: 10px;  
-      display: none; /* Hide delete button by default */  
+      margin-left: 10px;
+      display: none;
     }
+
     .chat.outgoing:hover .details .delete-btn {
-      display:inline; /* Show delete button on hover */
-      
+      display: inline;
     }
 
     .chat.incoming {
@@ -616,7 +679,7 @@ if (!isset($_SESSION['unique_id'])) {
       padding: 15px;
       background: #f4f4f4;
       position: relative;
-      -webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
+      -webkit-overflow-scrolling: touch;
     }
 
     .contacts-list.active {
@@ -690,7 +753,7 @@ if (!isset($_SESSION['unique_id'])) {
       padding: 20px;
       background: #fff;
       position: relative;
-      -webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
+      -webkit-overflow-scrolling: touch;
     }
 
     .create-group.active {
@@ -750,7 +813,7 @@ if (!isset($_SESSION['unique_id'])) {
       background: #f9f9f9;
       border: 1px solid #e0f2f1;
       border-radius: 10px;
-      -webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
+      -webkit-overflow-scrolling: touch;
     }
 
     .create-group .members-list label {
@@ -814,7 +877,7 @@ if (!isset($_SESSION['unique_id'])) {
       max-height: 80vh;
       overflow-y: auto;
       position: relative;
-      -webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
+      -webkit-overflow-scrolling: touch;
     }
 
     .modal-content .close-btn {
@@ -827,10 +890,10 @@ if (!isset($_SESSION['unique_id'])) {
       cursor: pointer;
     }
 
-    /* Mobile Footer Styles */
+    /* Mobile Styles */
     @media (max-width: 768px) {
       body {
-        display: block; /* Remove flex to stack sections vertically */
+        display: block;
       }
 
       .wrapper, .container {
@@ -840,50 +903,11 @@ if (!isset($_SESSION['unique_id'])) {
       }
 
       .left-section {
-        width: 100vw;
-        max-width: 100vw;
-        height: 60px;
-        top: auto;
-        bottom: 0;
-        transform: none;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-around;
-        padding:; /* Reduced padding for tighter fit */
-        z-index: 1000;
-      }
-
-      .left-section .menu-toggle {
         display: none;
       }
 
-      .left-section .menu-items {
+      .mobile-footer {
         display: flex;
-      
-        /* justify-content: space-between; Changed to space-between for even spacing */
-        width: 100%;
-        flex-wrap: nowrap; /* Prevent wrapping */
-      }
-
-      .left-section .menu-items li {
-        margin: 0;
-        flex: 1; /* Distribute space equally */
-        text-align: center;
-      }
-
-      .left-section .menu-item {
-        padding: 5px;
-        justify-content: center; /* Center icons */
-      }
-
-      .left-section .menu-item i {
-        font-size: 18px; /* Slightly smaller icons for mobile */
-        margin-right: 0; /* Remove margin for tighter fit */
-      }
-
-      .left-section .menu-item span {
-        display: none;
       }
 
       .chat-list {
@@ -893,6 +917,7 @@ if (!isset($_SESSION['unique_id'])) {
         position: static;
         height: calc(100vh - 60px);
         display: block;
+        padding-bottom: 160px;
       }
 
       .main-content {
@@ -902,13 +927,15 @@ if (!isset($_SESSION['unique_id'])) {
         position: static;
         height: calc(100vh - 60px);
         display: block;
+        padding-bottom: 60px; 
+
       }
 
       .chat-area {
         width: 100vw;
         max-width: 100vw;
         position: static;
-        height: 100vh; /* Full height when active */
+        height: 100vh;
         display: none;
       }
 
@@ -1033,8 +1060,8 @@ if (!isset($_SESSION['unique_id'])) {
         font-size: 10px;
       }
 
-      .left-section .menu-item i {
-        font-size: 16px; /* Even smaller icons for very small screens */
+      .mobile-footer .menu-item i {
+        font-size: 16px;
       }
     }
   </style>
@@ -1042,7 +1069,7 @@ if (!isset($_SESSION['unique_id'])) {
 <body>
   <div class="wrapper">
     <div class="container">
-      <!-- Left Section (Sidebar/Footer) -->
+      <!-- Left Section (Desktop Sidebar) -->
       <section class="left-section">
         <div class="left-content">
           <a href="#" class="menu-toggle"><i class="fas fa-bars"></i></a>
@@ -1050,14 +1077,24 @@ if (!isset($_SESSION['unique_id'])) {
             <li><a href="#" data-section="users" class="menu-item"><i class="fas fa-comment"></i><span>Chats</span></a></li>
             <li><a href="#" data-section="create-group" class="menu-item"><i class="fas fa-users"></i><span>Create Groups</span></a></li>
             <li><a href="#" data-section="requests" class="menu-item"><i class="fas fa-user-plus"></i><span>Chat Requests</span></a></li>
-           
             <li><a href="#" data-section="contacts" class="menu-item"><i class="fas fa-address-book"></i><span>Contacts</span></a></li>
-            <li><a href="settings.php" class="menu-item"><i class="fas fa-cog"></i><span>Settings</span></a></li>
-
           </ul>
           <ul class="menu-items">
+            <li><a href="settings.php" class="menu-item"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+            <li><a href="../php/logout.php" class="menu-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
           </ul>
         </div>
+      </section>
+
+      <!-- Mobile Footer -->
+      <section class="mobile-footer">
+        <ul class="menu-items">
+          <li><a href="#" data-section="users" class="menu-item"><i class="fas fa-comment"></i><span>Chats</span></a></li>
+          <li><a href="#" data-section="create-group" class="menu-item"><i class="fas fa-users"></i><span>Create Groups</span></a></li>
+          <li><a href="#" data-section="requests" class="menu-item"><i class="fas fa-user-plus"></i><span>Chat Requests</span></a></li>
+          <li><a href="#" data-section="contacts" class="menu-item"><i class="fas fa-address-book"></i><span>Contacts</span></a></li>
+          <li><a href="settings.php" class="menu-item"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+        </ul>
       </section>
 
       <!-- Chat List (Sidebar) -->
@@ -1219,6 +1256,7 @@ if (!isset($_SESSION['unique_id'])) {
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const leftSection = document.querySelector('.left-section');
+      const mobileFooter = document.querySelector('.mobile-footer');
       const menuToggle = document.querySelector('.menu-toggle');
       const mainContent = document.querySelector('.main-content');
       const chatArea = document.querySelector('.chat-area');
@@ -1234,8 +1272,10 @@ if (!isset($_SESSION['unique_id'])) {
       // Debug element existence
       console.log('Menu Toggle:', menuToggle);
       console.log('Left Section:', leftSection);
+      console.log('Mobile Footer:', mobileFooter);
       if (!menuToggle) console.error('Menu toggle element not found');
       if (!leftSection) console.error('Left section element not found');
+      if (!mobileFooter) console.error('Mobile footer element not found');
 
       // Update layout based on screen size and state
       function updateLayout() {
@@ -1243,23 +1283,24 @@ if (!isset($_SESSION['unique_id'])) {
         console.log('Is Mobile:', isMobile, 'Left Section Expanded:', leftSection.classList.contains('expanded'));
 
         if (isMobile) {
-          // Hide footer when chat is active
+          leftSection.style.display = 'none';
+          mobileFooter.style.display = 'flex';
           if (chatArea.classList.contains('active') || window.location.search.includes('user_id') || window.location.search.includes('group_id')) {
-            leftSection.style.display = 'none'; // Hide footer
+            mobileFooter.style.display = 'none';
             mainContent.style.display = 'none';
             chatList.style.display = 'none';
             chatArea.style.display = 'flex';
             contactsList.style.display = 'none';
             createGroup.style.display = 'none';
           } else if (contactsList.classList.contains('active')) {
-            leftSection.style.display = 'flex'; // Show footer
+            mobileFooter.style.display = 'flex';
             mainContent.style.display = 'none';
-            chatList.style.display = 'block'; // Ensure chat-list is visible to show contacts
+            chatList.style.display = 'block';
             chatArea.style.display = 'none';
-            contactsList.style.display = 'block'; // Explicitly show contacts
+            contactsList.style.display = 'block';
             createGroup.style.display = 'none';
           } else {
-            leftSection.style.display = 'flex'; // Show footer
+            mobileFooter.style.display = 'flex';
             mainContent.style.display = 'block';
             chatList.style.display = 'block';
             chatArea.style.display = 'none';
@@ -1268,7 +1309,8 @@ if (!isset($_SESSION['unique_id'])) {
           }
         } else {
           leftSection.style.display = 'block';
-          leftSection.style.transform = leftSection.classList.contains('expanded') ? 'translateX(0)' : 'translateX(-25vw)';
+          mobileFooter.style.display = 'none';
+          leftSection.style.transform = leftSection.classList.contains('expanded') ? 'translateX(0)' : 'translateX(-13vw)';
           mainContent.style.display = 'block';
           chatList.style.display = 'flex';
           chatArea.style.display = 'flex';
@@ -1276,7 +1318,7 @@ if (!isset($_SESSION['unique_id'])) {
           createGroup.style.display = 'none';
         }
 
-        console.log('Left Section Display:', leftSection.style.display, 'Transform:', leftSection.style.transform);
+        console.log('Left Section Display:', leftSection.style.display, 'Transform:', leftSection.style.transform, 'Mobile Footer Display:', mobileFooter.style.display);
       }
 
       // Sidebar toggle (desktop only)
@@ -1304,7 +1346,7 @@ if (!isset($_SESSION['unique_id'])) {
             chatArea.style.display = 'flex';
             contactsList.style.display = 'none';
             createGroup.style.display = 'none';
-            leftSection.style.display = 'none'; // Hide footer when chat is opened
+            mobileFooter.style.display = 'none';
           }
           window.location.href = link.href;
         }
@@ -1322,7 +1364,7 @@ if (!isset($_SESSION['unique_id'])) {
             chatList.style.display = 'block';
             contactsList.style.display = 'none';
             createGroup.style.display = 'none';
-            leftSection.style.display = 'flex'; // Show footer when returning to chat list
+            mobileFooter.style.display = 'flex';
           }
           window.location.href = 'users.php';
         });
@@ -1436,11 +1478,9 @@ if (!isset($_SESSION['unique_id'])) {
 
       // Create and show modal for create group
       function showCreateGroupModal() {
-        // Remove any existing modal
         const existingModal = document.querySelector('.modal');
         if (existingModal) existingModal.remove();
 
-        // Create modal elements
         const modal = document.createElement('div');
         modal.className = 'modal';
         const modalContent = document.createElement('div');
@@ -1454,7 +1494,6 @@ if (!isset($_SESSION['unique_id'])) {
         modal.appendChild(modalContent);
         document.body.appendChild(modal);
 
-        // Load create group content
         modalContent.innerHTML += '<p>Loading...</p>';
 
         fetch('create-group.php?ajax=1', {
@@ -1546,10 +1585,9 @@ if (!isset($_SESSION['unique_id'])) {
           }
         })
         .then(() => {
-          // Ensure footer is visible when modal is opened
           const isMobile = window.matchMedia('(max-width: 768px)').matches;
           if (isMobile) {
-            leftSection.style.display = 'flex';
+            mobileFooter.style.display = 'flex';
           }
         })
         .catch(error => {
@@ -1558,12 +1596,10 @@ if (!isset($_SESSION['unique_id'])) {
           modalContent.appendChild(closeButton);
         });
 
-        // Close modal on click outside
         modal.addEventListener('click', (e) => {
           if (e.target === modal) modal.remove();
         });
 
-        // Close modal on Escape key
         modal.addEventListener('keydown', (e) => {
           if (e.key === 'Escape') modal.remove();
         });
@@ -1681,7 +1717,7 @@ if (!isset($_SESSION['unique_id'])) {
                   chatArea.style.display = 'flex';
                   contactsList.style.display = 'none';
                   createGroup.style.display = 'none';
-                  leftSection.style.display = 'none'; // Hide footer when chat is opened from contacts
+                  mobileFooter.style.display = 'none';
                 }
                 window.location.href = this.href;
               });
