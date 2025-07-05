@@ -35,7 +35,8 @@ if (!isset($_SESSION['unique_id'])) {
       position: fixed;
       top: 0;
       left: 0;
-      border-right: 1px solid red;
+      border-right: 1px solid rgb(217, 217, 217);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
       height: 100vh;
       transform: translateX(-13vw); /* Show 5vw in closed state */
       transition: transform 0.3s ease;
@@ -185,7 +186,7 @@ if (!isset($_SESSION['unique_id'])) {
 
     .chat-list header {
       padding: 15px 20px;
-      border-bottom: 1px solid #e0e0e0;
+      /* border-bottom: 1px solid #e0e0e0; */
       background: #fdfdfd;
       color: white;
       display: flex;
@@ -207,7 +208,7 @@ if (!isset($_SESSION['unique_id'])) {
     }
 
     .chat-list .search input {
-      width: calc(100% - 40px);
+      width: calc(100%);
       padding: 8px;
       border: 1px solid #ddd;
       border-radius: 15px;
@@ -336,6 +337,7 @@ if (!isset($_SESSION['unique_id'])) {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      width: 16vw;
     }
 
     .chat-list .user-item .details p .last-message {
@@ -348,6 +350,7 @@ if (!isset($_SESSION['unique_id'])) {
     .chat-list .user-item .details p .timestamp {
       font-size: 10px;
       color: #666;
+      text-align: end;
     }
 
     /* Chat Requests Styles */
@@ -519,6 +522,7 @@ if (!isset($_SESSION['unique_id'])) {
       background: #fdfdfd;
       padding: 15px;
       border-bottom: 1px solid #ddd;
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.28);
       display: flex;
       align-items: center;
       color: black;
@@ -1104,7 +1108,7 @@ if (!isset($_SESSION['unique_id'])) {
         </header>
         <div class="search">
           <input type="text" placeholder="Enter name to search...">
-          <button><i class="fas fa-search"></i></button>
+          <!-- <button><i class="fas fa-search"></i></button> -->
         </div>
         <div class="toggle-buttons">
           <button id="show-users" class="toggle-btn active">Users</button>
@@ -1252,7 +1256,8 @@ if (!isset($_SESSION['unique_id'])) {
       </section>
     </div>
   </div>
-
+  <script src="js/users.js"></script>
+<script src="js/search.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const leftSection = document.querySelector('.left-section');

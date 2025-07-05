@@ -1,6 +1,6 @@
-const searchBar = document.querySelector(".sidebar .search input");
+const searchBar = document.querySelector(".chat-list .search input");
 // const searchBtn = document.querySelector(".sidebar .search button");
-const usersList = document.querySelector(".sidebar .users-list");
+const usersList = document.querySelector(".chat-list .users-list");
 
 // Toggle search bar and button active state
 // searchBtn.onclick = () => {
